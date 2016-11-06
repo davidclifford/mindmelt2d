@@ -1,7 +1,8 @@
-package mindmelt;
+package mindmelt.state;
 
 import java.awt.Font;
 import java.util.Random;
+import mindmelt.Mindmelt;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;

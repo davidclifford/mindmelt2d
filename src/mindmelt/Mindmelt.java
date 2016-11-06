@@ -1,5 +1,7 @@
 package mindmelt;
 
+import mindmelt.state.Play;
+import mindmelt.state.MainMenu;
 import java.awt.Cursor;
 import java.util.Random;
 import org.newdawn.slick.AppGameContainer;

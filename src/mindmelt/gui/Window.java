@@ -18,12 +18,25 @@ public class Window extends GuiElement {
     
     public Window addZone(Zone zone) {
         zones.add(zone);
+        zone.setParent(this);
         return this;
     }
 
     public Window addButton(Button button) {
         buttons.add(button);
+        button.setParent(this);
         return this;
+    }
+    
+    public void click(int x, int y)
+    {
+        GuiElement elem = getElement(x, y);
+        if (elem==null) {
+            return;
+        }
+        int xx = x-this.x;
+        int yy = y-this.y;
+        elem.click(xx, yy);
     }
    
     public GuiElement getElement(int x, int y)
