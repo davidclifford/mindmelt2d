@@ -28,6 +28,7 @@ public class Mindmelt extends StateBasedGame {
     public Mindmelt(String title) {
         super(title);
         addState(new MainMenu());
+        addState(new Play());
     }
 
     @Override
