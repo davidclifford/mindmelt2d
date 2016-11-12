@@ -38,5 +38,4 @@ public class Mindmelt extends StateBasedGame {
         getState(mainMenu).init(container, this);
         enterState(mainMenu);
     }
-    
-}
+ }
