@@ -114,4 +114,76 @@ public class TileType {
         return this;
     }
 
+    public TileType getFromChar(char ch)
+    {
+        for (TileType tile : tileType) {
+            if(tile.ch == ch)
+                return tile;
+        }
+        return null;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getIcon() {
+        return icon;
+    }
+
+    public void setIcon(int icon) {
+        this.icon = icon;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isCanEnter() {
+        return canEnter;
+    }
+
+    public void setCanEnter(boolean canEnter) {
+        this.canEnter = canEnter;
+    }
+
+    public boolean isSeeThru() {
+        return seeThru;
+    }
+
+    public void setSeeThru(boolean seeThru) {
+        this.seeThru = seeThru;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public int getCh() {
+        return ch;
+    }
+
+    public void setCh(int ch) {
+        this.ch = ch;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
 }
