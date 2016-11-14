@@ -3,6 +3,8 @@ package mindmelt.state;
 import java.awt.Font;
 import java.util.Random;
 import mindmelt.Mindmelt;
+import mindmelt.maps.TileType;
+import mindmelt.maps.World;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -23,6 +25,8 @@ public class Play extends BasicGameState {
     private TrueTypeFont ttf;
     private Sound scream;
     
+    private World world;
+    
     @Override
     public int getID() {
         return Mindmelt.playScreen;
@@ -42,7 +46,12 @@ public class Play extends BasicGameState {
         ttf = new TrueTypeFont(font,false);
         scream = new Sound("res/wilhelm.ogg");
     }
-
+    @Override
+    public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        world = new World();
+        world.load_map("world");
+    }
+    
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         g.setBackground(Color.black);
@@ -66,8 +75,9 @@ public class Play extends BasicGameState {
             for (int x=0; x<20; x++) {
                 x1 = x*32;
                 y1 = y*32;
-                int tile = rand.nextInt(184)+1;
-                drawTile(x1,y1,tile);
+                //int tile = rand.nextInt(184)+1;
+                TileType tile = world.getTile(x, y, 0);
+                if (tile!= null) drawTile(x1,y1,tile.getIcon());
             }
         }
         tiles.endUse();        

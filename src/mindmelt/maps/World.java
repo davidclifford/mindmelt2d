@@ -1,5 +1,47 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package mindmelt.maps;
 
-public interface World {
-    TileType getTile(int x, int y, int z);
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+/**
+ *
+ * @author david_000
+ */
+public class World implements ITileAccess {
+
+    private TileType map[][][] = new TileType[8][256][256];
+
+    @Override
+    public TileType getTile(int x, int y, int level) {
+        return map[level][y][x];
+    }  
+    
+    public void load_map(String mapName) {
+        String filename = "data/"+mapName+".st";
+        
+        try {
+            BufferedReader input = new BufferedReader(new FileReader(filename));
+            //Header
+            int level = 0;
+
+            String line;
+            int y=0;
+            while ((line = input.readLine())!=null) {
+                int x=0;
+                for(int c=0; c<line.length();c++) {
+                    char ch = line.charAt(c);
+                    TileType tile = TileType.getFromChar(ch);
+                    map[level][y][x] = tile;
+                    x++;
+                }
+                y++;
+            }
+        } catch (Exception e)   {
+            System.out.println(e.toString());
+        }
+    }
 }

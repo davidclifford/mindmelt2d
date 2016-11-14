@@ -14,7 +14,7 @@ public class TileType {
     
     public static TileType tileType[] = new TileType[256];
 
-    public static final TileType space = new TileType(0).name("space");
+    public static final TileType space = new TileType(0).name("space").ch('$');
     public static final TileType floor = new TileType(1).name("floor").enter().seeThru().ch(' ').icon(1);
     public static final TileType presurepad = new TileType(2).name("pressure pad").enter().seeThru().ch('o').icon(2);
     public static final TileType hiddenpp = new TileType(3).name("hidden presure pad").enter().seeThru().ch('.').icon(3);
@@ -114,7 +114,7 @@ public class TileType {
         return this;
     }
 
-    public TileType getFromChar(char ch)
+    static public TileType getFromChar(char ch)
     {
         for (TileType tile : tileType) {
             if(tile.ch == ch)
