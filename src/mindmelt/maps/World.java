@@ -1,22 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package mindmelt.maps;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-/**
- *
- * @author david_000
- */
 public class World implements ITileAccess {
 
     private TileType map[][][] = new TileType[8][256][256];
 
     @Override
     public TileType getTile(int x, int y, int level) {
+        if (x<0 || y<0 || level<0) return TileType.space;
         return map[level][y][x];
     }  
     

@@ -4,6 +4,7 @@ import mindmelt.state.Play;
 import mindmelt.state.MainMenu;
 import java.awt.Cursor;
 import java.util.Random;
+import mindmelt.gui.WindowSystem;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.Color;
@@ -20,6 +21,7 @@ public class Mindmelt extends StateBasedGame {
 
     public static AppGameContainer app;
     public Image tiles;
+    public WindowSystem ws;
     
     public static void main(String[] args) throws SlickException {
         app = new AppGameContainer(new Mindmelt("Mindmelt"));
@@ -31,6 +33,7 @@ public class Mindmelt extends StateBasedGame {
         super(title);
         addState(new MainMenu());
         addState(new Play());
+//        addState(new MiniMap());
     }
 
     @Override

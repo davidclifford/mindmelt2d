@@ -3,6 +3,8 @@ package mindmelt.state;
 import java.awt.Font;
 import java.util.Random;
 import mindmelt.Mindmelt;
+import mindmelt.gui.Window;
+import mindmelt.gui.WindowSystem;
 import mindmelt.maps.TileType;
 import mindmelt.maps.World;
 import org.newdawn.slick.Color;
@@ -27,6 +29,13 @@ public class Play extends BasicGameState {
     
     private World world;
     
+    private long time = System.currentTimeMillis()/1000L;
+    private long prev_time = time;
+    private int player_x = 29;
+    private int player_y = 30;
+    
+    private Window mapWindow;
+    
     @Override
     public int getID() {
         return Mindmelt.playScreen;
@@ -45,42 +54,33 @@ public class Play extends BasicGameState {
         Font font = new Font("Monospaced",Font.PLAIN,14);
         ttf = new TrueTypeFont(font,false);
         scream = new Sound("res/wilhelm.ogg");
+    
+        world = new World();
+        world.load_map("worldx80");
+
+        mapWindow = new Window(tiles, 4, 4, 9, 9);
+        
     }
+    
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
-        world = new World();
-        world.load_map("world");
     }
     
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-        g.setBackground(Color.black);
-        int x1 = rand.nextInt(640);
-        int y1 = rand.nextInt(480);
-        for (int i=0; i<100; i++) {
-            int x2 = rand.nextInt(640);
-            int y2 = rand.nextInt(480);
-            int red = rand.nextInt(255);
-            int green = rand.nextInt(255);
-            int blue = rand.nextInt(255);
-            Color c = new Color(red, green, blue);
-            g.setColor(c);
-            g.drawLine(x1, y1, x2, y2);
-            x1 = x2;
-            y1 = y2;
-        }
-        
+        g.setBackground(Color.black);       
         tiles.startUse();
-        for (int y=0; y<16; y++) {
-            for (int x=0; x<20; x++) {
-                x1 = x*32;
-                y1 = y*32;
+        for (int y=0; y<9; y++) {
+            for (int x=0; x<9; x++) {
                 //int tile = rand.nextInt(184)+1;
-                TileType tile = world.getTile(x, y, 0);
-                if (tile!= null) drawTile(x1,y1,tile.getIcon());
+                TileType tile = world.getTile(x+player_x, y+player_y, 0);
+                //if (tile!= null) drawTile(x1,y1,tile.getIcon());
+                mapWindow.drawTile(tiles, x, y, tile.getIcon());
             }
         }
-        tiles.endUse();        
+        mapWindow.drawTile(tiles,4,4,61);
+        tiles.endUse();    
+        
         ttf.drawString(100, 100, "Mindmelt!",Color.cyan);
     }
 
@@ -91,6 +91,14 @@ public class Play extends BasicGameState {
             game.enterState(Mindmelt.mainMenu,new FadeOutTransition(),new FadeInTransition());
         } else if(container.getInput().isKeyPressed(Input.KEY_SPACE)) {
             scream.play();
+        } else if(container.getInput().isKeyPressed(Input.KEY_LEFT)) {
+            player_x--;
+        } else if(container.getInput().isKeyPressed(Input.KEY_RIGHT)) {
+            player_x++;
+        } else if(container.getInput().isKeyPressed(Input.KEY_UP)) {
+            player_y--;
+        } else if(container.getInput().isKeyPressed(Input.KEY_DOWN)) {
+            player_y++;
         }
     }   
     
@@ -98,5 +106,11 @@ public class Play extends BasicGameState {
         int ty = tile/20;
         int tx = tile%20;
         tiles.drawEmbedded(x,y, x+32,y+32, tx*32,ty*32, tx*32+32,ty*32+32);       
+    }     
+    
+    private void drawSmallTile(int x, int y, int tile) {
+        int ty = tile/20;
+        int tx = tile%20;
+        tiles.drawEmbedded(x,y, x+8,y+8, tx*32,ty*32, tx*32+32,ty*32+32);       
     }    
 }

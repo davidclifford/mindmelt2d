@@ -2,6 +2,7 @@ package mindmelt.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.newdawn.slick.Image;
 
 public class Window extends GuiElement {
     private int x;
@@ -12,8 +13,8 @@ public class Window extends GuiElement {
     private List<Zone> zones = new ArrayList<>();
     private List<Button> buttons = new ArrayList<>();
 
-    public Window(int x, int y, int w, int h) {
-        super(x,y,w,h);
+    public Window(Image tiles, int x, int y, int w, int h) {
+        super(tiles,x*SC,y*SC,w*SC,h*SC);
     }
     
     public Window addZone(Zone zone) {
