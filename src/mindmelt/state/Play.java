@@ -31,8 +31,8 @@ public class Play extends BasicGameState {
     
     private long time = System.currentTimeMillis()/1000L;
     private long prev_time = time;
-    private int player_x = 29;
-    private int player_y = 30;
+    private int player_x = 0;
+    private int player_y = 0;
     
     private Window mapWindow;
     
@@ -49,16 +49,16 @@ public class Play extends BasicGameState {
         container.getInput().disableKeyRepeat();
 
         tiles = new Image("res/tiles.png",false,0,new Color(132, 0, 0)); 
-        tiles.setFilter(Image.FILTER_NEAREST);
+        tiles.setFilter(Image.FILTER_LINEAR);
         rand = new Random(1);
         Font font = new Font("Monospaced",Font.PLAIN,14);
         ttf = new TrueTypeFont(font,false);
         scream = new Sound("res/wilhelm.ogg");
     
         world = new World();
-        world.load_map("worldx80");
+        world.load_map("omgra0");
 
-        mapWindow = new Window(tiles, 4, 4, 9, 9);
+        mapWindow = new Window(tiles, 0, 0, 9, 9);
         
     }
     
@@ -81,7 +81,7 @@ public class Play extends BasicGameState {
         mapWindow.drawTile(tiles,4,4,61);
         tiles.endUse();    
         
-        ttf.drawString(100, 100, "Mindmelt!",Color.cyan);
+        ttf.drawString(300, 8, "Mindmelt!",Color.cyan);
     }
 
 
