@@ -14,7 +14,7 @@ public class World implements ITileAccess {
     }  
     
     public void load_map(String mapName) {
-        String filename = "data/"+mapName+".st";
+        String filename = "st/"+mapName+".st";
         
         try {
             BufferedReader input = new BufferedReader(new FileReader(filename));
