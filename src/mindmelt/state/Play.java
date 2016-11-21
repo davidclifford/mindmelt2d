@@ -30,8 +30,8 @@ public class Play extends BasicGameState implements InputListener {
     
     private World world;
     
-    private int player_x = 35;
-    private int player_y = 34;
+    private int player_x = 39;
+    private int player_y = 38;
     
     private int frame = 0;
     private String keypress = "";
@@ -75,7 +75,15 @@ public class Play extends BasicGameState implements InputListener {
     
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
-        g.setBackground(Color.black);       
+        g.setBackground(Color.black);    
+        display_position(player_x,player_y);
+        
+        ttf.drawString(300, 0, "Mindmelt!",Color.cyan);
+        ttf.drawString(300, 16, keypress, Color.yellow);
+        ttf.drawString(300, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
+    }
+
+    private void display_pos(int px, int py) {
         tiles.startUse();
         for (int y=0; y<9; y++) {
             for (int x=0; x<9; x++) {
@@ -87,13 +95,32 @@ public class Play extends BasicGameState implements InputListener {
         }
         mapWindow.drawTile(tiles,4,4,61);
         tiles.endUse();    
-        
-        ttf.drawString(300, 0, "Mindmelt!",Color.cyan);
-        ttf.drawString(300, 16, keypress, Color.yellow);
-        ttf.drawString(300, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
     }
-
-
+    
+    private void display_position(int px, int py) {
+        int size = 9;
+        int half = size/2;
+        int tile; 
+        
+        tiles.startUse();
+        for (int y=-half;y<half+1;y++) {
+            for (int x=-half;x<half+1;x++) {
+                if (clear(px+x,py+y,px,py)) {
+                    tile = world.getTile(px+x, py+y, 0).getIcon();
+                } else {
+                    tile = TileType.space.getIcon();
+                }
+                mapWindow.drawTile(tiles, x+half, y+half, tile);
+            }
+        }
+        mapWindow.drawTile(tiles,half,half,61); //player
+        tiles.endUse();    
+    }
+    
+    private boolean clear(int x1, int y1, int x2, int y2) {
+        return true;
+    }
+    
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
         
@@ -116,7 +143,7 @@ public class Play extends BasicGameState implements InputListener {
                 if (right) new_x = player_x+1;
                 frame -= speed;
 
-                TileType nextTile = world.getTile(new_x+4, new_y+4, 0);
+                TileType nextTile = world.getTile(new_x, new_y, 0);
                 if (nextTile.canEnter) {
                     player_x = new_x;
                     player_y = new_y;
