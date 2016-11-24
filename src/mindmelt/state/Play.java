@@ -105,7 +105,7 @@ public class Play extends BasicGameState implements InputListener {
         tiles.startUse();
         for (int y=-half;y<half+1;y++) {
             for (int x=-half;x<half+1;x++) {
-                if (clear(px+x,py+y,px,py)) {
+                if ((x<2 && x>-2 && y<2 && y>-2) || clear(px+x,py+y,px,py)) {
                     tile = world.getTile(px+x, py+y, 0).getIcon();
                 } else {
                     tile = TileType.space.getIcon();
@@ -118,6 +118,41 @@ public class Play extends BasicGameState implements InputListener {
     }
     
     private boolean clear(int x1, int y1, int x2, int y2) {
+        int xa = Math.abs(x1-x2);
+        int ya = Math.abs(y1-y2);
+        int xs = x1<x2 ? 1 : (x1>x2 ? -1 : 0);
+        int ys = y1<y2 ? 1 : (y1>y2 ? -1 : 0);
+        System.out.println("x1 ="+x1+" y1="+y1);
+        System.out.println("x2 ="+x2+" y2="+y2);
+        if (xa>ya) {
+            int d = 2*xa-ya;
+            int y = y1;
+            for (int i=0;i<=xa;i++){
+                int x=x1+i*xs;
+                System.out.println("x ="+x+" y="+y);
+                if (false&&!world.getTile(x, y, 0).isSeeThru())
+                    return false;
+                if (d>0) {
+                    y+=ys;
+                    d -= xa;
+                }
+                d += ya;
+            }
+        } else {
+            int d = 2*ya-xa;
+            int x = x1;
+            for (int i=0;i<=ya;i++){
+                int y=y1+i*ys;
+                System.out.println("x ="+x+" y="+y);
+                if (false&&!world.getTile(x, y, 0).isSeeThru())
+                    return false;
+                if (d>0) {
+                    x+=xs;
+                    d -= ya;
+                }
+                d += xa;
+            }
+        }
         return true;
     }
     
