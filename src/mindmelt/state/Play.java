@@ -98,13 +98,15 @@ public class Play extends BasicGameState implements InputListener {
     }
     
     private void display_position(int px, int py) {
-        int size = 9;
+        int size = 15;
         int half = size/2;
         int tile; 
         
         tiles.startUse();
-        for (int y=-half;y<half+1;y++) {
-            for (int x=-half;x<half+1;x++) {
+        for (int yy=-half;yy<half+1;yy++) {
+            for (int xx=-half;xx<half+1;xx++) {
+                int x = xx;
+                int y = yy;
                 if ((x<2 && x>-2 && y<2 && y>-2) || clear(px+x,py+y,px,py)) {
                     tile = world.getTile(px+x, py+y, 0).getIcon();
                 } else {
@@ -122,15 +124,16 @@ public class Play extends BasicGameState implements InputListener {
         int ya = Math.abs(y1-y2);
         int xs = x1<x2 ? 1 : (x1>x2 ? -1 : 0);
         int ys = y1<y2 ? 1 : (y1>y2 ? -1 : 0);
-        System.out.println("x1 ="+x1+" y1="+y1);
-        System.out.println("x2 ="+x2+" y2="+y2);
+        //System.out.println("x1 ="+x1+" y1="+y1);
+        //System.out.println("x2 ="+x2+" y2="+y2);
         if (xa>ya) {
-            int d = 2*xa-ya;
+            int d = 2*ya-xa;
             int y = y1;
-            for (int i=0;i<=xa;i++){
+            for (int i=1;i<xa;i++){
                 int x=x1+i*xs;
-                System.out.println("x ="+x+" y="+y);
-                if (false&&!world.getTile(x, y, 0).isSeeThru())
+                //System.out.println("x ="+x+" y="+y);
+                //mapWindow.drawTile(tiles, x-x1, y-y1, 1);
+                if (!world.getTile(x, y, 0).isSeeThru())
                     return false;
                 if (d>0) {
                     y+=ys;
@@ -139,12 +142,13 @@ public class Play extends BasicGameState implements InputListener {
                 d += ya;
             }
         } else {
-            int d = 2*ya-xa;
+            int d = 2*xa-ya;
             int x = x1;
-            for (int i=0;i<=ya;i++){
+            for (int i=1;i<ya;i++){
                 int y=y1+i*ys;
-                System.out.println("x ="+x+" y="+y);
-                if (false&&!world.getTile(x, y, 0).isSeeThru())
+                //System.out.println("x ="+x+" y="+y);
+                //mapWindow.drawTile(tiles, x-x2+4, y-y2+4, 1);
+                if (!world.getTile(x, y, 0).isSeeThru())
                     return false;
                 if (d>0) {
                     x+=xs;
