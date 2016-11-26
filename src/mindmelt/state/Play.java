@@ -64,26 +64,46 @@ public class Play extends BasicGameState implements InputListener {
         }
     }
 
+//    private void disp_init() {
+//        dispList = new ArrayList<>();
+//        int k = 0;
+//        int l = 0;
+//        for(int i=1; i<=half; i++) { //distance out
+//            for(int j=-i;j<=i;j++) { //go
+//                k = -sgn(j);
+//                l = sgn(i);
+//                dispList.add(new DispXY(j, -i, j+k, -i+l)); //across right top
+//                dispList.add(new DispXY(j, i, j+k, i-l)); //across left bottom
+//                dispList.add(new DispXY(i, j, i-l, j+k)); //right down
+//                dispList.add(new DispXY(-i, j, -i+l, j+k)); // left up
+//            }
+//        }
+//        System.out.println("------");
+//        for (DispXY xy : dispList) {
+//            System.out.println(xy.xf+","+xy.yf+" "+xy.xt+","+xy.yt);
+//        }
+//    }
+    
+
     private void disp_init() {
         dispList = new ArrayList<>();
         int k = 0;
         int l = 0;
         for(int i=1; i<=half; i++) { //distance out
             for(int j=-i;j<=i;j++) { //go
-                k = 0; l = 1;
-                if (j==-i) k = 1;
-                if (j==i) k = -1;
-                dispList.add(new DispXY(j, -i, j+k, -i+l)); //across right top
-                dispList.add(new DispXY(j, i, j+k, i-l)); //across left bottom
-                dispList.add(new DispXY(i, j, i-l, j+k)); //right down
-                dispList.add(new DispXY(-i, j, -i+l, j+k)); // left up
+                k = sgn(j);
+                l = sgn(i);
+                dispList.add(new DispXY(j, -i, j-k, l-i)); //across right top
+                dispList.add(new DispXY(j, i, j-k, i-l)); //across left bottom
+                dispList.add(new DispXY(i, j, i-l, j-k)); //right down
+                dispList.add(new DispXY(-i, j, l-i, j-k)); // left up
             }
         }
         System.out.println("------");
         for (DispXY xy : dispList) {
             System.out.println(xy.xf+","+xy.yf+" "+xy.xt+","+xy.yt);
         }
-    }
+    }    
   
     @Override
     public int getID() {
@@ -270,4 +290,8 @@ public class Play extends BasicGameState implements InputListener {
         int tx = tile%20;
         tiles.drawEmbedded(x,y, x+8,y+8, tx*32,ty*32, tx*32+32,ty*32+32);       
     }    
+    
+    private int sgn(int s) {
+        return s<0 ? -1 : (s>0 ? 1 : 0);
+    }
 }
