@@ -1,6 +1,8 @@
 package mindmelt.state;
 
 import java.awt.Font;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import mindmelt.Mindmelt;
 import mindmelt.gui.Window;
@@ -43,6 +45,46 @@ public class Play extends BasicGameState implements InputListener {
     
     private Window mapWindow;
     
+    int size = 15;
+    int half = size/2;
+    int tile[][];
+    List<DispXY> dispList;
+    
+    class DispXY {
+        public int xf;
+        public int yf;
+        public int xt;
+        public int yt;
+        
+        DispXY(int x1, int y1, int x2, int y2) {
+            xf=x1;
+            yf=y1;
+            xt=x2;
+            yt=y2;
+        }
+    }
+
+    private void disp_init() {
+        dispList = new ArrayList<>();
+        int k = 0;
+        int l = 0;
+        for(int i=1; i<=half; i++) { //distance out
+            for(int j=-i;j<=i;j++) { //go
+                k = 0; l = 1;
+                if (j==-i) k = 1;
+                if (j==i) k = -1;
+                dispList.add(new DispXY(j, -i, j+k, -i+l)); //across right top
+                dispList.add(new DispXY(j, i, j+k, i-l)); //across left bottom
+                dispList.add(new DispXY(i, j, i-l, j+k)); //right down
+                dispList.add(new DispXY(-i, j, -i+l, j+k)); // left up
+            }
+        }
+        System.out.println("------");
+        for (DispXY xy : dispList) {
+            System.out.println(xy.xf+","+xy.yf+" "+xy.xt+","+xy.yt);
+        }
+    }
+  
     @Override
     public int getID() {
         return Mindmelt.playScreen;
@@ -67,6 +109,7 @@ public class Play extends BasicGameState implements InputListener {
 
         mapWindow = new Window(tiles, 0, 0, 9, 9);
         
+        disp_init();
     }
     
     @Override
@@ -82,82 +125,81 @@ public class Play extends BasicGameState implements InputListener {
         ttf.drawString(300, 16, keypress, Color.yellow);
         ttf.drawString(300, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
     }
-
-    private void display_pos(int px, int py) {
-        tiles.startUse();
-        for (int y=0; y<9; y++) {
-            for (int x=0; x<9; x++) {
-                //int tile = rand.nextInt(184)+1;
-                TileType tile = world.getTile(x+player_x, y+player_y, 0);
-                //if (tile!= null) drawTile(x1,y1,tile.getIcon());
-                mapWindow.drawTile(tiles, x, y, tile.getIcon());
-            }
-        }
-        mapWindow.drawTile(tiles,4,4,61);
-        tiles.endUse();    
-    }
     
-    private void display_position(int px, int py) {
+    private void display_pos(int px, int py) {
         int size = 15;
         int half = size/2;
-        int tile; 
-        
+        int tile;        
         tiles.startUse();
-        for (int yy=-half;yy<half+1;yy++) {
-            for (int xx=-half;xx<half+1;xx++) {
-                int x = xx;
-                int y = yy;
-                if ((x<2 && x>-2 && y<2 && y>-2) || clear(px+x,py+y,px,py)) {
-                    tile = world.getTile(px+x, py+y, 0).getIcon();
-                } else {
-                    tile = TileType.space.getIcon();
-                }
+        for (int y=-half;y<half+1;y++) {
+            for (int x=-half;x<half+1;x++) {
+                tile = world.getTile(px+x, py+y, 0).getIcon();
                 mapWindow.drawTile(tiles, x+half, y+half, tile);
+            }
+        }
+        mapWindow.drawTile(tiles,half,half,61); //player
+        tiles.endUse();    
+    }    
+ 
+    private void display_position(int px, int py) {
+        int mask[][] = new int[size][size]; //0 = see & thru, 1 = see & not thru, 2 = not see & not thru
+        
+        for (DispXY xy : dispList) {
+            boolean canSee = world.getTile(px+xy.xf, py+xy.yf, 0).isSeeThru();
+            if (mask[xy.xt+half][xy.yt+half]==0 && !canSee) {
+                mask[xy.xf+half][xy.yf+half] = 1;
+            } else if (mask[xy.xt+half][xy.yt+half]>=1) {
+                mask[xy.xf+half][xy.yf+half] = 2;
+            }
+        }
+        // Draw it
+        tiles.startUse();
+        for (int y=-half;y<=half;y++) {
+            for (int x=-half;x<=half;x++) {
+                if (mask[x+half][y+half] < 2) {
+                    int tile = world.getTile(px+x, py+y, 0).icon;
+                    mapWindow.drawTile(tiles, half+x, half+y, tile);
+                } else {
+                    mapWindow.drawTile(tiles, half+x, half+y, 0);
+                }
+            }
+        }
+        mapWindow.drawTile(tiles,half,half,61); //player
+        tiles.endUse();    
+    }
+      
+    private void display_pos_fill(int px, int py) {
+        tile = new int[size][size];
+        // flood fill
+        fill(px,py,1,0);
+        fill(px,py,-1,0);
+        fill(px,py,0,1);
+        fill(px,py,0,-1);
+        fill(px,py,1,1);
+        fill(px,py,-1,-1);
+        fill(px,py,-1,1);
+        fill(px,py,1,-1);
+        tiles.startUse();
+        for (int y=-half;y<half+1;y++) {
+            for (int x=-half;x<half+1;x++) {
+                int t = tile[x+half][y+half];
+                mapWindow.drawTile(tiles, x+half, y+half, t);
             }
         }
         mapWindow.drawTile(tiles,half,half,61); //player
         tiles.endUse();    
     }
     
-    private boolean clear(int x1, int y1, int x2, int y2) {
-        int xa = Math.abs(x1-x2);
-        int ya = Math.abs(y1-y2);
-        int xs = x1<x2 ? 1 : (x1>x2 ? -1 : 0);
-        int ys = y1<y2 ? 1 : (y1>y2 ? -1 : 0);
-        //System.out.println("x1 ="+x1+" y1="+y1);
-        //System.out.println("x2 ="+x2+" y2="+y2);
-        if (xa>ya) {
-            int d = 2*ya-xa;
-            int y = y1;
-            for (int i=1;i<xa;i++){
-                int x=x1+i*xs;
-                //System.out.println("x ="+x+" y="+y);
-                //mapWindow.drawTile(tiles, x-x1, y-y1, 1);
-                if (!world.getTile(x, y, 0).isSeeThru())
-                    return false;
-                if (d>0) {
-                    y+=ys;
-                    d -= xa;
-                }
-                d += ya;
-            }
-        } else {
-            int d = 2*xa-ya;
-            int x = x1;
-            for (int i=1;i<ya;i++){
-                int y=y1+i*ys;
-                //System.out.println("x ="+x+" y="+y);
-                //mapWindow.drawTile(tiles, x-x2+4, y-y2+4, 1);
-                if (!world.getTile(x, y, 0).isSeeThru())
-                    return false;
-                if (d>0) {
-                    x+=xs;
-                    d -= ya;
-                }
-                d += xa;
-            }
-        }
-        return true;
+    private void fill(int px, int py, int x, int y) {
+        if (x<-half || x>half || y<-half || y>half) return;
+        if (px+x<=0 || px+x>=80 || py+y<=0 || py+y>=80) return;
+        if (tile[x+half][y+half]!= 0) return;
+        tile[x+half][y+half] = world.getTile(px+x, py+y, 0).getIcon();
+        if (!world.getTile(px+x, py+y, 0).isSeeThru()) return;
+        fill(px,py,x+1,y);
+        fill(px,py,x-1,y);
+        fill(px,py,x,y+1);
+        fill(px,py,x,y-1);
     }
     
     @Override

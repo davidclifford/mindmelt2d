@@ -9,7 +9,8 @@ public class World implements ITileAccess {
 
     @Override
     public TileType getTile(int x, int y, int level) {
-        if (x<0 || y<0 || level<0) return TileType.space;
+        if (x<=0 || y<=0) return TileType.space;
+        if (x>=80 || y>=80) return TileType.space;
         return map[level][y][x];
     }  
     

@@ -44,7 +44,7 @@ public class TileType {
     public static final TileType bush = new TileType(27).name("bush").ch('*').seeThru().enter().speed(2).icon(27);
     public static final TileType tree = new TileType(28).name("tree").ch('|').enter().speed(2).icon(28);
     public static final TileType ytree = new TileType(29).name("y tree").ch('Y').enter().speed(2).icon(29);
-    public static final TileType mountain = new TileType(30).name("mountain").ch('M').seeThru().icon(30);
+    public static final TileType mountain = new TileType(30).name("mountain").ch('M').icon(30);
     public static final TileType hill = new TileType(31).name("hill").ch('n').seeThru().enter().speed(3).icon(31);
     public static final TileType water = new TileType(32).name("water").ch('~').seeThru().icon(32);
     public static final TileType deepwater = new TileType(33).name("deep water").ch('^').seeThru().icon(33);
