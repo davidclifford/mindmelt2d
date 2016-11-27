@@ -49,6 +49,9 @@ public class Play extends BasicGameState implements InputListener {
     int half = size/2;
     int tile[][];
     List<DispXY> dispList;
+    boolean xray = false;
+    boolean dark = false;
+    boolean see_all = false;
     
     class DispXY {
         public int xf;
@@ -63,27 +66,7 @@ public class Play extends BasicGameState implements InputListener {
             yt=y2;
         }
     }
-
-//    private void disp_init() {
-//        dispList = new ArrayList<>();
-//        int k = 0;
-//        int l = 0;
-//        for(int i=1; i<=half; i++) { //distance out
-//            for(int j=-i;j<=i;j++) { //go
-//                k = -sgn(j);
-//                l = sgn(i);
-//                dispList.add(new DispXY(j, -i, j+k, -i+l)); //across right top
-//                dispList.add(new DispXY(j, i, j+k, i-l)); //across left bottom
-//                dispList.add(new DispXY(i, j, i-l, j+k)); //right down
-//                dispList.add(new DispXY(-i, j, -i+l, j+k)); // left up
-//            }
-//        }
-//        System.out.println("------");
-//        for (DispXY xy : dispList) {
-//            System.out.println(xy.xf+","+xy.yf+" "+xy.xt+","+xy.yt);
-//        }
-//    }
-    
+   
 
     private void disp_init() {
         dispList = new ArrayList<>();
@@ -171,13 +154,20 @@ public class Play extends BasicGameState implements InputListener {
             } else if (mask[xy.xt+half][xy.yt+half]>=1) {
                 mask[xy.xf+half][xy.yf+half] = 2;
             }
+            if(xy.xf <= 1 && xy.xf >= -1 && xy.yf <= 1 && xy.yf >= -1 && xray) {
+                mask[xy.xf+half][xy.yf+half] = 0;
+            }
+            if((xy.xf > 1 || xy.xf < -1 || xy.yf > 1 || xy.yf < -1) && dark) {
+                mask[xy.xf+half][xy.yf+half] = 2;
+            }
         }
+
         // Draw it
         tiles.startUse();
         for (int y=-half;y<=half;y++) {
             for (int x=-half;x<=half;x++) {
-                if (mask[x+half][y+half] < 2) {
-                    int tile = world.getTile(px+x, py+y, 0).icon;
+                int tile = world.getTile(px+x, py+y, 0).icon;
+                if (mask[x+half][y+half] < 2 || see_all) {
                     mapWindow.drawTile(tiles, half+x, half+y, tile);
                 } else {
                     mapWindow.drawTile(tiles, half+x, half+y, 0);

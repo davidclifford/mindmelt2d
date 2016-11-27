@@ -1,5 +1,6 @@
 package mindmelt.gui;
 
+import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 
 public class GuiElement {
@@ -49,5 +50,12 @@ public class GuiElement {
         int ty = tile/20;
         int tx = tile%20;
         tiles.drawEmbedded(xt*SC+x,yt*SC+y, xt*SC+SC+x,yt*SC+SC+y, tx*SC,ty*SC, tx*SC+SC,ty*SC+SC);       
+    }        
+    public void drawTile(Image tiles, int xt, int yt, int tile, int brightness) {
+        int ty = tile/20;
+        int tx = tile%20;
+        int c = brightness;
+        Color col = new Color(c,c,c);
+        tiles.drawEmbedded(xt*SC+x,yt*SC+y, xt*SC+SC+x,yt*SC+SC+y, tx*SC,ty*SC, tx*SC+SC,ty*SC+SC,col);       
     }        
 }
