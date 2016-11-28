@@ -34,6 +34,7 @@ public class Play extends BasicGameState implements InputListener {
     
     private int player_x = 39;
     private int player_y = 38;
+    private int dir = 0;
     
     private int frame = 0;
     private String keypress = "";
@@ -52,6 +53,7 @@ public class Play extends BasicGameState implements InputListener {
     boolean xray = false;
     boolean dark = false;
     boolean see_all = false;
+    boolean cheat = true;
     
     class DispXY {
         public int xf;
@@ -70,21 +72,15 @@ public class Play extends BasicGameState implements InputListener {
 
     private void disp_init() {
         dispList = new ArrayList<>();
-        int k = 0;
-        int l = 0;
         for(int i=1; i<=half; i++) { //distance out
             for(int j=-i;j<=i;j++) { //go
-                k = sgn(j);
-                l = sgn(i);
+                int k = sgn(j);
+                int l = sgn(i);
                 dispList.add(new DispXY(j, -i, j-k, l-i)); //across right top
                 dispList.add(new DispXY(j, i, j-k, i-l)); //across left bottom
                 dispList.add(new DispXY(i, j, i-l, j-k)); //right down
                 dispList.add(new DispXY(-i, j, l-i, j-k)); // left up
             }
-        }
-        System.out.println("------");
-        for (DispXY xy : dispList) {
-            System.out.println(xy.xf+","+xy.yf+" "+xy.xt+","+xy.yt);
         }
     }    
   
@@ -122,7 +118,7 @@ public class Play extends BasicGameState implements InputListener {
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
         g.setBackground(Color.black);    
-        display_position(player_x,player_y);
+        display_position(player_x,player_y, dir);
         
         ttf.drawString(300, 0, "Mindmelt!",Color.cyan);
         ttf.drawString(300, 16, keypress, Color.yellow);
@@ -144,7 +140,7 @@ public class Play extends BasicGameState implements InputListener {
         tiles.endUse();    
     }    
  
-    private void display_position(int px, int py) {
+    private void display_position(int px, int py, int dir) {
         int mask[][] = new int[size][size]; //0 = see & thru, 1 = see & not thru, 2 = not see & not thru
         
         for (DispXY xy : dispList) {
@@ -167,10 +163,12 @@ public class Play extends BasicGameState implements InputListener {
         for (int y=-half;y<=half;y++) {
             for (int x=-half;x<=half;x++) {
                 int tile = world.getTile(px+x, py+y, 0).icon;
+                int xx = dir==0 ? x : dir==1 ? y : dir==2 ? -x : -y; 
+                int yy = dir==0 ? y : dir==1 ? -x : dir==2 ? -y : x; 
                 if (mask[x+half][y+half] < 2 || see_all) {
-                    mapWindow.drawTile(tiles, half+x, half+y, tile);
+                    mapWindow.drawTile(tiles, half+xx, half+yy, tile);
                 } else {
-                    mapWindow.drawTile(tiles, half+x, half+y, 0);
+                    mapWindow.drawTile(tiles, half+xx, half+yy, 0);
                 }
             }
         }
@@ -218,28 +216,44 @@ public class Play extends BasicGameState implements InputListener {
         final int speed = 100;
         int new_x=player_x;
         int new_y=player_y;
-        
+        int a[] = {1,0,-1,0};        
+        int b[] = {0,-1,0,1};        
         if(container.getInput().isKeyDown(Input.KEY_ESCAPE)) {
             game.enterState(Mindmelt.mainMenu,new FadeOutTransition(),new FadeInTransition());
         }        
         if(container.getInput().isKeyPressed(Input.KEY_SPACE)) {
             scream.play();
         }
-        if (pressed) {
-            frame+=delta;
-            if (frame > speed){
-                if (up) new_y = player_y-1;
-                if (down) new_y = player_y+1;
-                if (left) new_x = player_x-1;
-                if (right) new_x = player_x+1;
+        if (pressed && frame==0) {
+                if (up) {
+                    new_x = player_x - b[dir];
+                    new_y = player_y - a[dir];                    
+                }
+                if (down) {
+                    new_x = player_x + b[dir];
+                    new_y = player_y + a[dir];                    
+                }
+                if (left) {
+                    new_x = player_x - a[dir];
+                    new_y = player_y + b[dir];                    
+                }
+                if (right) {
+                    new_x = player_x + a[dir];
+                    new_y = player_y - b[dir];
+                }
                 frame -= speed;
 
                 TileType nextTile = world.getTile(new_x, new_y, 0);
-                if (nextTile.canEnter) {
+                if (nextTile.canEnter || cheat) {
                     player_x = new_x;
                     player_y = new_y;
                 }
-            }
+                frame = delta;
+        } else if (pressed) {
+            frame+=delta;
+            if (frame>speed) frame = 0;
+        } else {
+            frame = 0;
         }
     }   
     
@@ -250,6 +264,9 @@ public class Play extends BasicGameState implements InputListener {
         if(key == Input.KEY_DOWN) down = true;
         if(key == Input.KEY_LEFT) left = true;
         if(key == Input.KEY_RIGHT) right = true;
+        if(key == Input.KEY_PRIOR) dir--;
+        if(key == Input.KEY_NEXT) dir++;
+        dir = dir<0 ? dir+=4 : dir>3 ? dir-=4 : dir;
         pressed = true;
         frame = 100;
     }
