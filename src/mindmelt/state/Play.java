@@ -2,6 +2,7 @@ package mindmelt.state;
 
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import mindmelt.Mindmelt;
@@ -9,6 +10,7 @@ import mindmelt.gui.Window;
 import mindmelt.gui.WindowSystem;
 import mindmelt.maps.TileType;
 import mindmelt.maps.World;
+import mindmelt.objects.Obj;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -31,10 +33,13 @@ public class Play extends BasicGameState implements InputListener {
     private Sound scream;
     
     private World world;
+    private List<Obj> objects; 
     
     private int player_x = 39;
     private int player_y = 38;
     private int dir = 0;
+    private int mapId = 0;
+    private Obj player = null;
     
     private int frame = 0;
     private String keypress = "";
@@ -108,6 +113,14 @@ public class Play extends BasicGameState implements InputListener {
 
         mapWindow = new Window(tiles, 0, 0, 9, 9);
         
+        objects = new ArrayList<Obj>();
+        player = Obj.builder().id(1).name("player").description("Argmo").type("player").setCoords(player_x, player_y, 0).icon(61);
+        Obj scisors = Obj.builder().id(2).name("scisors").description("a pair of scisors").type("thing").setCoords(40, 40, 0).icon(178);
+        Obj gremlin = Obj.builder().id(3).name("gremlin").description("Gremlin").type("monster").setCoords(38, 36, 0).icon(62);
+        objects.add(player);
+        objects.add(scisors);
+        objects.add(gremlin);
+        Collections.reverse(objects);
         disp_init();
     }
     
@@ -142,6 +155,7 @@ public class Play extends BasicGameState implements InputListener {
  
     private void display_position(int px, int py, int dir) {
         int mask[][] = new int[size][size]; //0 = see & thru, 1 = see & not thru, 2 = not see & not thru
+        List<Obj> obj[][] = new ArrayList[size][size];
         
         for (DispXY xy : dispList) {
             boolean canSee = world.getTile(px+xy.xf, py+xy.yf, 0).isSeeThru();
@@ -157,8 +171,21 @@ public class Play extends BasicGameState implements InputListener {
                 mask[xy.xf+half][xy.yf+half] = 2;
             }
         }
+        
+        //Objects
+        for (Obj ob : objects) {
+            if (ob.mapId != mapId )
+                continue;
+            int x = ob.x-px;
+            int y = ob.y-py;
+            if (x>-half && x<half && y>-half && y<half) {
+                if (obj[x+half][y+half]==null)
+                    obj[x+half][y+half] = new ArrayList<Obj>();
+                obj[x+half][y+half].add(ob);
+            }
+        }
 
-        // Draw it
+        // Draw landscape
         tiles.startUse();
         for (int y=-half;y<=half;y++) {
             for (int x=-half;x<=half;x++) {
@@ -167,47 +194,17 @@ public class Play extends BasicGameState implements InputListener {
                 int yy = dir==0 ? y : dir==1 ? -x : dir==2 ? -y : x; 
                 if (mask[x+half][y+half] < 2 || see_all) {
                     mapWindow.drawTile(tiles, half+xx, half+yy, tile);
+                    List<Obj> objs = obj[x+half][y+half];
+                    if (objs!=null) {
+                        for(Obj ob : objs)
+                           mapWindow.drawTile(tiles,half+xx, half+yy,ob.icon); 
+                    }
                 } else {
                     mapWindow.drawTile(tiles, half+xx, half+yy, 0);
                 }
             }
         }
-        mapWindow.drawTile(tiles,half,half,61); //player
         tiles.endUse();    
-    }
-      
-    private void display_pos_fill(int px, int py) {
-        tile = new int[size][size];
-        // flood fill
-        fill(px,py,1,0);
-        fill(px,py,-1,0);
-        fill(px,py,0,1);
-        fill(px,py,0,-1);
-        fill(px,py,1,1);
-        fill(px,py,-1,-1);
-        fill(px,py,-1,1);
-        fill(px,py,1,-1);
-        tiles.startUse();
-        for (int y=-half;y<half+1;y++) {
-            for (int x=-half;x<half+1;x++) {
-                int t = tile[x+half][y+half];
-                mapWindow.drawTile(tiles, x+half, y+half, t);
-            }
-        }
-        mapWindow.drawTile(tiles,half,half,61); //player
-        tiles.endUse();    
-    }
-    
-    private void fill(int px, int py, int x, int y) {
-        if (x<-half || x>half || y<-half || y>half) return;
-        if (px+x<=0 || px+x>=80 || py+y<=0 || py+y>=80) return;
-        if (tile[x+half][y+half]!= 0) return;
-        tile[x+half][y+half] = world.getTile(px+x, py+y, 0).getIcon();
-        if (!world.getTile(px+x, py+y, 0).isSeeThru()) return;
-        fill(px,py,x+1,y);
-        fill(px,py,x-1,y);
-        fill(px,py,x,y+1);
-        fill(px,py,x,y-1);
     }
     
     @Override
@@ -218,6 +215,7 @@ public class Play extends BasicGameState implements InputListener {
         int new_y=player_y;
         int a[] = {1,0,-1,0};        
         int b[] = {0,-1,0,1};        
+        
         if(container.getInput().isKeyDown(Input.KEY_ESCAPE)) {
             game.enterState(Mindmelt.mainMenu,new FadeOutTransition(),new FadeInTransition());
         }        
@@ -247,6 +245,7 @@ public class Play extends BasicGameState implements InputListener {
                 if (nextTile.canEnter || cheat) {
                     player_x = new_x;
                     player_y = new_y;
+                    player.setCoords(new_x, new_y, 0);
                 }
                 frame = delta;
         } else if (pressed) {
