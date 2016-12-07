@@ -156,6 +156,7 @@ public class Play extends BasicGameState implements InputListener {
     private void display_position(int px, int py, int dir) {
         int mask[][] = new int[size][size]; //0 = see & thru, 1 = see & not thru, 2 = not see & not thru
         List<Obj> obj[][] = new ArrayList[size][size];
+        Obj top[][] = new Obj[size][size];
         
         for (DispXY xy : dispList) {
             boolean canSee = world.getTile(px+xy.xf, py+xy.yf, 0).isSeeThru();
@@ -174,14 +175,13 @@ public class Play extends BasicGameState implements InputListener {
         
         //Objects
         for (Obj ob : objects) {
-            if (ob.mapId != mapId )
+            if (ob.mapId != mapId || !ob.isInMap() )
                 continue;
             int x = ob.x-px;
             int y = ob.y-py;
             if (x>-half && x<half && y>-half && y<half) {
-                if (obj[x+half][y+half]==null)
-                    obj[x+half][y+half] = new ArrayList<Obj>();
-                obj[x+half][y+half].add(ob);
+                if (ob.isAtTop())
+                    top[x][y] = ob;
             }
         }
 
@@ -194,10 +194,15 @@ public class Play extends BasicGameState implements InputListener {
                 int yy = dir==0 ? y : dir==1 ? -x : dir==2 ? -y : x; 
                 if (mask[x+half][y+half] < 2 || see_all) {
                     mapWindow.drawTile(tiles, half+xx, half+yy, tile);
-                    List<Obj> objs = obj[x+half][y+half];
-                    if (objs!=null) {
-                        for(Obj ob : objs)
-                           mapWindow.drawTile(tiles,half+xx, half+yy,ob.icon); 
+                    Obj ob = world.getTop(px+x, py+y, 0);
+                    if (ob!=null) {
+                        while (ob.down!=null) {
+                            ob = ob.down; 
+                        }
+                        while (ob!=null) {
+                           mapWindow.drawTile(tiles,half+xx, half+yy,ob.icon);
+                           ob = ob.up;
+                        }
                     }
                 } else {
                     mapWindow.drawTile(tiles, half+xx, half+yy, 0);
@@ -245,7 +250,7 @@ public class Play extends BasicGameState implements InputListener {
                 if (nextTile.canEnter || cheat) {
                     player_x = new_x;
                     player_y = new_y;
-                    player.setCoords(new_x, new_y, 0);
+                    player.moveToMap(new_x, new_y, 0, 0, world);
                 }
                 frame = delta;
         } else if (pressed) {
