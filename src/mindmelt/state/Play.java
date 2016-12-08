@@ -33,12 +33,11 @@ public class Play extends BasicGameState implements InputListener {
     private Sound scream;
     
     private World world;
-    private List<Obj> objects; 
     
     private int player_x = 39;
     private int player_y = 38;
     private int dir = 0;
-    private int mapId = 0;
+    private int mapId = 1;
     private Obj player = null;
     
     private int frame = 0;
@@ -113,14 +112,10 @@ public class Play extends BasicGameState implements InputListener {
 
         mapWindow = new Window(tiles, 0, 0, 9, 9);
         
-        objects = new ArrayList<Obj>();
-        player = Obj.builder().id(1).name("player").description("Argmo").type("player").setCoords(player_x, player_y, 0).icon(61);
-        Obj scisors = Obj.builder().id(2).name("scisors").description("a pair of scisors").type("thing").setCoords(40, 40, 0).icon(178);
-        Obj gremlin = Obj.builder().id(3).name("gremlin").description("Gremlin").type("monster").setCoords(38, 36, 0).icon(62);
-        objects.add(player);
-        objects.add(scisors);
-        objects.add(gremlin);
-        Collections.reverse(objects);
+        player = Obj.builder().id(1).name("player").description("Argmo").type("player").setCoords(player_x, player_y, 0).mapId(mapId).icon(61).moveToMap(world);
+        Obj scisors = Obj.builder().id(2).name("scisors").description("a pair of scisors").type("thing").setCoords(40, 40, 0).mapId(mapId).icon(178).moveToMap(world);
+        Obj gremlin = Obj.builder().id(3).name("gremlin").description("Gremlin").type("monster").setCoords(38, 36, 0).mapId(mapId).icon(62).moveToMap(world);
+        
         disp_init();
     }
     
@@ -172,18 +167,6 @@ public class Play extends BasicGameState implements InputListener {
                 mask[xy.xf+half][xy.yf+half] = 2;
             }
         }
-        
-        //Objects
-        for (Obj ob : objects) {
-            if (ob.mapId != mapId || !ob.isInMap() )
-                continue;
-            int x = ob.x-px;
-            int y = ob.y-py;
-            if (x>-half && x<half && y>-half && y<half) {
-                if (ob.isAtTop())
-                    top[x][y] = ob;
-            }
-        }
 
         // Draw landscape
         tiles.startUse();
@@ -194,14 +177,10 @@ public class Play extends BasicGameState implements InputListener {
                 int yy = dir==0 ? y : dir==1 ? -x : dir==2 ? -y : x; 
                 if (mask[x+half][y+half] < 2 || see_all) {
                     mapWindow.drawTile(tiles, half+xx, half+yy, tile);
-                    Obj ob = world.getTop(px+x, py+y, 0);
-                    if (ob!=null) {
-                        while (ob.down!=null) {
-                            ob = ob.down; 
-                        }
-                        while (ob!=null) {
-                           mapWindow.drawTile(tiles,half+xx, half+yy,ob.icon);
-                           ob = ob.up;
+                    List<Obj> objects = world.getObjects(px+x, py+y, 0);
+                    if (objects!=null) {
+                        for (Obj ob : objects) {
+                            mapWindow.drawTile(tiles, half+xx, half+yy, ob.getIcon());
                         }
                     }
                 } else {
@@ -250,7 +229,7 @@ public class Play extends BasicGameState implements InputListener {
                 if (nextTile.canEnter || cheat) {
                     player_x = new_x;
                     player_y = new_y;
-                    player.moveToMap(new_x, new_y, 0, 0, world);
+                    player.moveToMap(new_x, new_y, 0, mapId, world);
                 }
                 frame = delta;
         } else if (pressed) {

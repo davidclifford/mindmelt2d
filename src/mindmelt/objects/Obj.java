@@ -13,9 +13,7 @@ public class Obj {
     public int mapId = 0;
     
     public Obj inside = null;
-    public Obj up = null;
-    public Obj down = null;
-    public Obj top = null;
+    public List<Obj> objects = null;
     
     public int icon = 0;
     public String name = "object";
@@ -34,57 +32,49 @@ public class Obj {
         return (inside!=null && type.equals("player"));
     }
     
-    public boolean isAtTop() {
-        return (this.up == null);
+    public void moveToObject(Obj obTo, World world) {
+        Obj ob = this;
+        if (ob.isInMap()) unlink(world);
+        if (ob.isInObject()) unlink();
+        List<Obj> objects = obTo.objects;
+        if (objects==null) {
+            objects = new ArrayList<Obj>();
+        }
+        objects.add(ob);
+        inside = obTo;
     }
     
-    public void moveToObject(Obj obTo) {
-        Obj ob = this;
-        unlink();
-        ob.inside = obTo;
-        if(obTo.top!=null) {
-            ob.down = obTo.top;
-            ob.up = null;
-            Obj dob = obTo.top;
-            obTo.top = ob;
-            dob.up = ob;            
-        }
+    public Obj moveToMap(World world) {
+        world.setTop(x, y, z, this);
+        return this;
     }
     
     public void moveToMap(int x, int y, int z, int mapId, World world) {
         Obj ob = this;
-        unlink();
-        Obj oldTop = world.getTop(x, y, z);
-        if (oldTop!=null) {
-            ob.down = oldTop;
-            oldTop.up = ob;
-        }
-        world.setTop(x,y,z,ob);
+        if (ob.isInMap()) 
+            unlink(world);
+        if (ob.isInObject()) 
+            unlink();
+        world.setTop(x, y, z, ob);
         ob.setCoords(x, y, z);
         ob.setMapId(mapId);
     }
-    
+
     private void unlink() {
+        if (inside==null) 
+            return;
+        List<Obj> objects = inside.objects;
+        objects.remove(this);
+        inside = null;
+    }
+    
+    private void unlink(World world) {
         Obj ob = this;
-        if(ob.isInMap()) {
-            ob.setCoords(0, 0, 0);
-            ob.setMapId(0);
-        } else if (ob.isInObject()) {
-            Obj inside = ob.getInside();
-            if (inside.top == ob) {
-                inside.top = ob.down;
-            }
-        }
-        
-        if (ob.up!=null) {
-            ob.up.down = ob.down;
-        }
-        if (ob.down!=null) {
-            ob.down.up = ob.up;
-        }
-        ob.up = null;
-        ob.down = null;
-        ob.inside = null;
+        List<Obj> objects = world.getObjects(ob.x, ob.y, ob.z);
+        ob.setCoords(0, 0, 0);
+        ob.setMapId(0);
+        if(objects!=null)
+            objects.remove(ob);
     }
     
     public static Obj builder() {
@@ -99,6 +89,11 @@ public class Obj {
         this.inside = null;
         return this;
     }  
+    
+    public Obj mapId(int mapId) {
+        this.mapId = mapId;
+        return this;
+    }
     
     public Obj name(String name) {
         this.name = name;
@@ -171,6 +166,7 @@ public class Obj {
 
     public void setInside(Obj inside) {
         this.inside = inside;
+        mapId = 0;
     }
 
     public int getIcon() {
