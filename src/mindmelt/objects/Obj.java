@@ -11,6 +11,8 @@ public class Obj {
     public int y = 0;
     public int z = 0;
     public int mapId = 0;
+    public int speed = 1000;
+    public int wait = 0;
     
     public Obj inside = null;
     public List<Obj> objects = null;
@@ -86,9 +88,13 @@ public class Obj {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.inside = null;
         return this;
     }  
+
+    public Obj inside(Obj in) {
+        this.inside = in;
+        return this;
+    }
     
     public Obj mapId(int mapId) {
         this.mapId = mapId;
@@ -118,6 +124,22 @@ public class Obj {
     public Obj id(int id) {
         this.id = id;
         return this;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public int getWait() {
+        return wait;
+    }
+
+    public void setWait(int wait) {
+        this.wait = wait;
     }
 
     public int getId() {
@@ -200,5 +222,24 @@ public class Obj {
     public void setType(String type) {
         this.type = type;
     }
-   
+ 
+    public boolean isMonster() {
+        return type.equals("monster");
+    } 
+    
+    public boolean isPlayer() {
+        return type.equals("player");
+    } 
+    
+    public boolean isPerson() {
+        return type.equals("person");
+    } 
+    
+    public boolean isAnimal() {
+        return type.equals("animal");
+    } 
+    
+    public boolean isBlocked() {
+        return isMonster() || isPlayer() || isPerson() || isAnimal();
+    }
 }

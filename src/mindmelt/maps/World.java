@@ -24,11 +24,11 @@ public class World implements ITileAccess {
         return top[level][y][x];
     }
     
-    public Obj getTop(int x, int y, int level) {
+    public Obj getTopObject(int x, int y, int level) {
         if (x<0 || y<0) return null;
         if (x>=80 || y>=80) return null;
         List<Obj> objects = top[level][y][x];
-        if (objects==null) return null;
+        if (objects==null || objects.size()==0) return null;
         return objects.get(objects.size()-1); //return last in list (ie the top)
     }    
     
@@ -43,7 +43,7 @@ public class World implements ITileAccess {
         objects.add(ob);
     }  
     
-    public void load_map(String mapName) {
+    public void loadMap(String mapName) {
         String filename = "st/"+mapName+".st";
         
         try {
