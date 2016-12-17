@@ -11,6 +11,7 @@ import mindmelt.gui.WindowSystem;
 import mindmelt.maps.TileType;
 import mindmelt.maps.World;
 import mindmelt.objects.Obj;
+import mindmelt.objects.ObjectStore;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
@@ -33,12 +34,13 @@ public class Play extends BasicGameState implements InputListener {
     private Sound scream;
     
     private World world;
+    private ObjectStore objects;
     
     private int player_x = 39;
     private int player_y = 38;
     private int dir = 0;
     private int mapId = 1;
-    private Obj player = null;
+    private Obj player;
     
     private int frame = 0;
     private String keypress = "";
@@ -50,7 +52,7 @@ public class Play extends BasicGameState implements InputListener {
     
     private Window mapWindow;
     
-    int size = 15;
+    int size = 9;
     int half = size/2;
     int tile[][];
     List<DispXY> dispList;
@@ -102,20 +104,21 @@ public class Play extends BasicGameState implements InputListener {
 
         tiles = new Image("res/tiles.png",false,0,new Color(132, 0, 0)); 
         tiles.setFilter(Image.FILTER_LINEAR);
-        rand = new Random(1);
+        rand = new Random();
         Font font = new Font("Monospaced",Font.PLAIN,14);
         ttf = new TrueTypeFont(font,false);
         scream = new Sound("res/wilhelm.ogg");
     
         world = new World();
-        world.load_map("worldx80");
+        world.loadMap("worldx80");
 
         mapWindow = new Window(tiles, 0, 0, 9, 9);
         
-        player = Obj.builder().id(1).name("player").description("Argmo").type("player").setCoords(player_x, player_y, 0).mapId(mapId).icon(61).moveToMap(world);
-        Obj scisors = Obj.builder().id(2).name("scisors").description("a pair of scisors").type("thing").setCoords(40, 40, 0).mapId(mapId).icon(178).moveToMap(world);
-        Obj gremlin = Obj.builder().id(3).name("gremlin").description("Gremlin").type("monster").setCoords(38, 36, 0).mapId(mapId).icon(62).moveToMap(world);
+        objects = new ObjectStore();
+        objects.loadObjects("initial");
         
+        objects.initMap(world,mapId);
+        player = objects.getPlayer();
         disp_init();
     }
     
@@ -238,6 +241,8 @@ public class Play extends BasicGameState implements InputListener {
         } else {
             frame = 0;
         }
+        
+        updateMonsters(delta);
     }   
     
     @Override
@@ -283,5 +288,26 @@ public class Play extends BasicGameState implements InputListener {
     
     private int sgn(int s) {
         return s<0 ? -1 : (s>0 ? 1 : 0);
+    }
+    
+    private void updateMonsters(int delta) {
+        for(Obj mon:objects.getActiveObjects()) {
+            if (mon.isMonster()) {
+                int dx = mon.getX();
+                int dy = mon.getY();
+                if (rand.nextInt(2)==0)
+                    dx += rand.nextInt(2)*2-1;
+                else
+                    dy += rand.nextInt(2)*2-1;
+                mon.setWait(mon.getWait()+delta);
+                if(mon.getWait() >= mon.getSpeed()) {
+                    Obj topObj = world.getTopObject(dx,dy,0);
+                    if(world.getTile(dx, dy, 0).canEnter && (topObj==null || !world.getTopObject(dx,dy,0).isBlocked())) {
+                        mon.moveToMap(dx, dy, 0, mapId, world);
+                        mon.setWait(mon.getWait()-mon.getSpeed());
+                    }
+                }
+            }
+        }
     }
 }
