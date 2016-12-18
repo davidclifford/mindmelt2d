@@ -3,6 +3,7 @@ package mindmelt.objects;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import mindmelt.maps.World;
 
 public class Obj {
@@ -21,6 +22,8 @@ public class Obj {
     public String name = "object";
     public String description = "an object";
     public String type = "object";
+    
+    public Random rand = new Random();
     
     public boolean isInMap() {
         return (mapId != 0);
@@ -79,9 +82,21 @@ public class Obj {
             objects.remove(ob);
     }
     
-    public static Obj builder() {
-        Obj obj = new Obj();
-        return obj;
+    public static Obj builder(String type) {
+        Obj ob;
+        if (type.equals("player"))
+            ob = new ObjPlayer();
+        else if (type.equals("monster"))
+            ob = new ObjMonster();
+        else if (type.equals("person"))
+            ob = new ObjPerson();
+        else if (type.equals("animal"))
+            ob = new ObjAnimal();
+        else if (type.equals("thing"))
+            ob = new ObjThing();
+        else
+            ob = new Obj();
+        return ob.type(type);
     }
     
     public Obj setCoords(int x, int y, int z) {
@@ -242,4 +257,9 @@ public class Obj {
     public boolean isBlocked() {
         return isMonster() || isPlayer() || isPerson() || isAnimal();
     }
+    
+    public void update(World world, ObjectStore objects, int delta) {
+        
+    }
+    
 }

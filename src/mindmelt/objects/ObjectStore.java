@@ -30,7 +30,7 @@ public class ObjectStore {
                 int inside = Integer.parseInt(line[8]);
                 Obj in = objects[inside];
                 int icon = Integer.parseInt(line[9]);
-                Obj ob = Obj.builder().id(id).name(name).description(desc).type(type).setCoords(x,y,z).inside(in).mapId(mapId).icon(icon);
+                Obj ob = Obj.builder(type).id(id).name(name).description(desc).setCoords(x,y,z).inside(in).mapId(mapId).icon(icon);
                 ob.setSpeed(500+rand.nextInt(500));
                 objects[id] = ob;
             }

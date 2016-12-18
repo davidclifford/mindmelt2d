@@ -52,7 +52,7 @@ public class Play extends BasicGameState implements InputListener {
     
     private Window mapWindow;
     
-    int size = 9;
+    int size = 15;
     int half = size/2;
     int tile[][];
     List<DispXY> dispList;
@@ -74,8 +74,18 @@ public class Play extends BasicGameState implements InputListener {
             yt=y2;
         }
     }
+    
+    class DispXYString {
+        public int x;
+        public int y;
+        public String string;
+        DispXYString(int x, int y, String string) {
+            this.x = x;
+            this.y = y;
+            this.string = string;
+        }
+    }
    
-
     private void disp_init() {
         dispList = new ArrayList<>();
         for(int i=1; i<=half; i++) { //distance out
@@ -105,14 +115,14 @@ public class Play extends BasicGameState implements InputListener {
         tiles = new Image("res/tiles.png",false,0,new Color(132, 0, 0)); 
         tiles.setFilter(Image.FILTER_LINEAR);
         rand = new Random();
-        Font font = new Font("Monospaced",Font.PLAIN,14);
+        Font font = new Font("Monospaced",Font.BOLD,24);
         ttf = new TrueTypeFont(font,false);
         scream = new Sound("res/wilhelm.ogg");
     
         world = new World();
         world.loadMap("worldx80");
 
-        mapWindow = new Window(tiles, 0, 0, 9, 9);
+        mapWindow = new Window(tiles, ttf, 0, 0, 9, 9);
         
         objects = new ObjectStore();
         objects.loadObjects("initial");
@@ -172,6 +182,7 @@ public class Play extends BasicGameState implements InputListener {
         }
 
         // Draw landscape
+        List<DispXYString> xyStrings = new ArrayList<>();
         tiles.startUse();
         for (int y=-half;y<=half;y++) {
             for (int x=-half;x<=half;x++) {
@@ -184,6 +195,8 @@ public class Play extends BasicGameState implements InputListener {
                     if (objects!=null) {
                         for (Obj ob : objects) {
                             mapWindow.drawTile(tiles, half+xx, half+yy, ob.getIcon());
+                            DispXYString xys = new DispXYString( half+xx, half+yy,""+ob.getSpeed());
+                            xyStrings.add(xys);
                         }
                     }
                 } else {
@@ -192,6 +205,11 @@ public class Play extends BasicGameState implements InputListener {
             }
         }
         tiles.endUse();    
+        
+        //Display any strings
+        for(DispXYString xys:xyStrings ) {
+            mapWindow.drawString(xys.x, xys.y, xys.string);
+        }
     }
     
     @Override
@@ -242,7 +260,7 @@ public class Play extends BasicGameState implements InputListener {
             frame = 0;
         }
         
-        updateMonsters(delta);
+        updateAllObjects(delta);
     }   
     
     @Override
@@ -290,24 +308,9 @@ public class Play extends BasicGameState implements InputListener {
         return s<0 ? -1 : (s>0 ? 1 : 0);
     }
     
-    private void updateMonsters(int delta) {
-        for(Obj mon:objects.getActiveObjects()) {
-            if (mon.isMonster()) {
-                int dx = mon.getX();
-                int dy = mon.getY();
-                if (rand.nextInt(2)==0)
-                    dx += rand.nextInt(2)*2-1;
-                else
-                    dy += rand.nextInt(2)*2-1;
-                mon.setWait(mon.getWait()+delta);
-                if(mon.getWait() >= mon.getSpeed()) {
-                    Obj topObj = world.getTopObject(dx,dy,0);
-                    if(world.getTile(dx, dy, 0).canEnter && (topObj==null || !world.getTopObject(dx,dy,0).isBlocked())) {
-                        mon.moveToMap(dx, dy, 0, mapId, world);
-                        mon.setWait(mon.getWait()-mon.getSpeed());
-                    }
-                }
-            }
+    private void updateAllObjects(int delta) {
+        for(Obj ob : objects.getActiveObjects()) {
+            ob.update(world,objects,delta);
         }
     }
 }

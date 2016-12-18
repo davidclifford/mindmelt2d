@@ -2,6 +2,7 @@ package mindmelt.gui;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.TrueTypeFont;
 
 public class GuiElement {
 
@@ -11,15 +12,17 @@ public class GuiElement {
     protected int w;
     protected int h;
     protected Image tiles;
+    protected TrueTypeFont ttf;
             
     protected GuiElement parent = null;
 
-    public GuiElement(Image tiles, int x, int y, int w, int h) {
+    public GuiElement(Image tiles, TrueTypeFont ttf, int x, int y, int w, int h) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.tiles = tiles;
+        this.ttf = ttf;
     }
 
     public GuiElement(int x, int y, int w, int h) {
@@ -50,7 +53,16 @@ public class GuiElement {
         int ty = tile/20;
         int tx = tile%20;
         tiles.drawEmbedded(xt*SC+x,yt*SC+y, xt*SC+SC+x,yt*SC+SC+y, tx*SC,ty*SC, tx*SC+SC,ty*SC+SC);       
-    }        
+    }       
+    
+    public void drawString(int xt, int yt, String string) {
+        ttf.drawString(xt*SC+x+1,yt*SC+y+1, string, Color.black);
+        ttf.drawString(xt*SC+x-1,yt*SC+y-1, string, Color.black);
+        ttf.drawString(xt*SC+x+1,yt*SC+y-1, string, Color.black);
+        ttf.drawString(xt*SC+x-1,yt*SC+y+1, string, Color.black);
+        ttf.drawString(xt*SC+x,yt*SC+y, string, Color.red);
+    }     
+    
     public void drawTile(Image tiles, int xt, int yt, int tile, int brightness) {
         int ty = tile/20;
         int tx = tile%20;

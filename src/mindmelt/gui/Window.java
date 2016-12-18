@@ -3,6 +3,7 @@ package mindmelt.gui;
 import java.util.ArrayList;
 import java.util.List;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.TrueTypeFont;
 
 public class Window extends GuiElement {
     private int x;
@@ -13,8 +14,8 @@ public class Window extends GuiElement {
     private List<Zone> zones = new ArrayList<>();
     private List<Button> buttons = new ArrayList<>();
 
-    public Window(Image tiles, int x, int y, int w, int h) {
-        super(tiles,x*SC,y*SC,w*SC,h*SC);
+    public Window(Image tiles, TrueTypeFont ttf, int x, int y, int w, int h) {
+        super(tiles,ttf,x*SC,y*SC,w*SC,h*SC);
     }
     
     public Window addZone(Zone zone) {
