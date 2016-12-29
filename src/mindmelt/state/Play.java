@@ -126,6 +126,7 @@ public class Play extends BasicGameState implements InputListener {
         
         objects.initMap(world,mapId);
         player = objects.getPlayer();
+        player.setSpeed(100);
                
         engine = new Engine(world, objects);
         
@@ -231,7 +232,7 @@ public class Play extends BasicGameState implements InputListener {
         if(container.getInput().isKeyPressed(Input.KEY_SPACE)) {
             scream.play();
         }
-        if (pressed && frame==0) {
+        if (pressed && player.isReady(delta)) {
                 if (up) {
                     new_x = player_x - b[dir];
                     new_y = player_y - a[dir];                    

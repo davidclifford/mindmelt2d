@@ -15,12 +15,10 @@ public class ObjMonster extends Obj {
         } else {
             dy += rand.nextInt(2)*2-1;
         }
-        setWait(getWait()+delta);
-        if(getWait() >= getSpeed()) {
+        if(isReady(delta)) {
             Obj topObj = engine.getWorld().getTopObject(dx,dy,0);
-            if(engine.getWorld().getTile(dx, dy, 0).canEnter() && (topObj==null || !engine.getWorld().getTopObject(dx,dy,0).isBlocked())) {
+            if(engine.getWorld().getTile(dx, dy, z).canEnter() && (topObj==null || !engine.getWorld().getTopObject(dx,dy,z).isBlocked())) {
                 engine.moveObjToMap(this, dx, dy, z, mapId);
-                setWait(mon.getWait()-mon.getSpeed());
             }
         }
     }

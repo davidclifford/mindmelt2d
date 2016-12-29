@@ -13,7 +13,7 @@ public class Obj {
     public int y = 0;
     public int z = 0;
     public int mapId = 0;
-    public int speed = 1000;
+    public int speed = 10;
     public int wait = 0;
     public String message = "";
     
@@ -260,6 +260,15 @@ public class Obj {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+    
+    public boolean isReady(int delta) {
+        wait+=delta;
+        if (wait>=speed) {
+            wait-=speed;
+            return true;
+        }
+        return false;
     }
     
     public void update(Engine engine, int delta) {
