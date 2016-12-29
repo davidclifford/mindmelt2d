@@ -126,7 +126,7 @@ public class Play extends BasicGameState implements InputListener {
         
         objects.initMap(world,mapId);
         player = objects.getPlayer();
-        player.setSpeed(100);
+        player.setSpeed(150);
                
         engine = new Engine(world, objects);
         
@@ -219,8 +219,6 @@ public class Play extends BasicGameState implements InputListener {
     
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
-        
-        final int speed = 100;
         int new_x=player_x;
         int new_y=player_y;
         int a[] = {1,0,-1,0};        
@@ -249,7 +247,6 @@ public class Play extends BasicGameState implements InputListener {
                     new_x = player_x + a[dir];
                     new_y = player_y - b[dir];
                 }
-                frame -= speed;
 
                 TileType nextTile = world.getTile(new_x, new_y, 0);
                 if (nextTile.canEnter || cheat) {
@@ -257,14 +254,9 @@ public class Play extends BasicGameState implements InputListener {
                     player_y = new_y;
                     engine.moveObjToMap(player,new_x, new_y, 0, mapId);
                 }
-                frame = delta;
-        } else if (pressed) {
-            frame+=delta;
-            if (frame>speed) frame = 0;
-        } else {
-            frame = 0;
         }
-        
+        if (!pressed)
+            player.setWait(player.getSpeed());
         updateAllObjects(delta);
     }   
     
