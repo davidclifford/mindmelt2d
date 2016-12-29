@@ -1,11 +1,12 @@
 package mindmelt.objects;
 
+import mindmelt.engine.Engine;
 import mindmelt.maps.World;
 
 public class ObjMonster extends Obj {
 
     @Override
-    public void update(World world, ObjectStore objects, int delta) {
+    public void update(Engine engine, int delta) {
         ObjMonster mon = this;
         int dx = x;
         int dy = y;
@@ -16,9 +17,9 @@ public class ObjMonster extends Obj {
         }
         setWait(getWait()+delta);
         if(getWait() >= getSpeed()) {
-            Obj topObj = world.getTopObject(dx,dy,0);
-            if(world.getTile(dx, dy, 0).canEnter && (topObj==null || !world.getTopObject(dx,dy,0).isBlocked())) {
-                moveToMap(dx, dy, 0, mapId, world);
+            Obj topObj = engine.getWorld().getTopObject(dx,dy,0);
+            if(engine.getWorld().getTile(dx, dy, 0).canEnter() && (topObj==null || !engine.getWorld().getTopObject(dx,dy,0).isBlocked())) {
+                engine.moveObjToMap(this, dx, dy, z, mapId);
                 setWait(mon.getWait()-mon.getSpeed());
             }
         }

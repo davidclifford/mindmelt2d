@@ -4,6 +4,7 @@ package mindmelt.objects;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import mindmelt.engine.Engine;
 import mindmelt.maps.World;
 
 public class Obj {
@@ -14,6 +15,7 @@ public class Obj {
     public int mapId = 0;
     public int speed = 1000;
     public int wait = 0;
+    public String message = "";
     
     public Obj inside = null;
     public List<Obj> objects = null;
@@ -38,14 +40,13 @@ public class Obj {
     }
     
     public void moveToObject(Obj obTo, World world) {
-        Obj ob = this;
-        if (ob.isInMap()) unlink(world);
-        if (ob.isInObject()) unlink();
+        if (isInMap()) unlink(world);
+        if (isInObject()) unlink();
         List<Obj> objects = obTo.objects;
         if (objects==null) {
             objects = new ArrayList<Obj>();
         }
-        objects.add(ob);
+        objects.add(this);
         inside = obTo;
     }
     
@@ -56,13 +57,13 @@ public class Obj {
     
     public void moveToMap(int x, int y, int z, int mapId, World world) {
         Obj ob = this;
-        if (ob.isInMap()) 
+        if (isInMap()) 
             unlink(world);
-        if (ob.isInObject()) 
+        else if (isInObject()) 
             unlink();
         world.setTop(x, y, z, ob);
-        ob.setCoords(x, y, z);
-        ob.setMapId(mapId);
+        setCoords(x, y, z);
+        setMapId(mapId);
     }
 
     private void unlink() {
@@ -74,12 +75,7 @@ public class Obj {
     }
     
     private void unlink(World world) {
-        Obj ob = this;
-        List<Obj> objects = world.getObjects(ob.x, ob.y, ob.z);
-        ob.setCoords(0, 0, 0);
-        ob.setMapId(0);
-        if(objects!=null)
-            objects.remove(ob);
+        world.removeObject(this);
     }
     
     public static Obj builder(String type) {
@@ -257,8 +253,16 @@ public class Obj {
     public boolean isBlocked() {
         return isMonster() || isPlayer() || isPerson() || isAnimal();
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
     
-    public void update(World world, ObjectStore objects, int delta) {
+    public void update(Engine engine, int delta) {
         
     }
     

@@ -147,7 +147,7 @@ public class TileType {
         this.name = name;
     }
 
-    public boolean isCanEnter() {
+    public boolean canEnter() {
         return canEnter;
     }
 

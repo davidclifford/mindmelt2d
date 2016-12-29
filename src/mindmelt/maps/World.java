@@ -8,25 +8,28 @@ import mindmelt.objects.Obj;
 
 public class World implements ITileAccess {
 
-    private TileType map[][][] = new TileType[8][256][256];
-    private List<Obj> top[][][] = new ArrayList[8][256][256];;
+    public static final int MAP_SIZE = 80;
+    public static final int LAYERS = 8;
+    private TileType map[][][] = new TileType[LAYERS][MAP_SIZE][MAP_SIZE];
+    private List<Obj> top[][][] = new ArrayList[LAYERS][MAP_SIZE][MAP_SIZE];
+    ;
 
     @Override
     public TileType getTile(int x, int y, int level) {
         if (x<0 || y<0) return TileType.space;
-        if (x>=80 || y>=80) return TileType.space;
+        if (x>=MAP_SIZE || y>=MAP_SIZE) return TileType.space;
         return map[level][y][x];
     }     
     
     public List<Obj> getObjects(int x, int y, int level) {
         if (x<0 || y<0) return null;
-        if (x>=80 || y>=80) return null;
+        if (x>=MAP_SIZE || y>=MAP_SIZE) return null;
         return top[level][y][x];
     }
     
     public Obj getTopObject(int x, int y, int level) {
         if (x<0 || y<0) return null;
-        if (x>=80 || y>=80) return null;
+        if (x>=MAP_SIZE || y>=MAP_SIZE) return null;
         List<Obj> objects = top[level][y][x];
         if (objects==null || objects.size()==0) return null;
         return objects.get(objects.size()-1); //return last in list (ie the top)
@@ -34,7 +37,7 @@ public class World implements ITileAccess {
     
     public void setTop(int x, int y, int level, Obj ob) {
         if (x<0 || y<0) return;
-        if (x>=80 || y>=80) return;
+        if (x>=MAP_SIZE || y>=MAP_SIZE) return;
         List<Obj> objects = top[level][y][x];
         if (objects==null) {
             objects = new ArrayList<Obj>();
@@ -42,6 +45,17 @@ public class World implements ITileAccess {
         }
         objects.add(ob);
     }  
+    
+    public void removeObject(Obj ob) {
+        List<Obj> objects = getObjects(ob.x, ob.y, ob.z);
+        ob.setCoords(0, 0, 0);
+        ob.setMapId(0);
+        if(objects!=null) {
+            objects.remove(ob);
+            if (objects.isEmpty())
+                top[ob.x][ob.y][ob.z] = null;
+        }
+    }
     
     public void loadMap(String mapName) {
         String filename = "st/"+mapName+".st";

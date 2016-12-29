@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import mindmelt.Mindmelt;
+import mindmelt.engine.Engine;
 import mindmelt.gui.Window;
 import mindmelt.gui.WindowSystem;
 import mindmelt.maps.TileType;
@@ -35,6 +36,7 @@ public class Play extends BasicGameState implements InputListener {
     
     private World world;
     private ObjectStore objects;
+    private Engine engine;
     
     private int player_x = 39;
     private int player_y = 38;
@@ -107,11 +109,6 @@ public class Play extends BasicGameState implements InputListener {
 
     @Override
     public void init(GameContainer container, StateBasedGame game) throws SlickException {
-        container.getInput().clearKeyPressedRecord();
-        container.getInput().clearMousePressedRecord();
-        container.getInput().clearControlPressedRecord();
-        container.getInput().disableKeyRepeat();
-
         tiles = new Image("res/tiles.png",false,0,new Color(132, 0, 0)); 
         tiles.setFilter(Image.FILTER_LINEAR);
         rand = new Random();
@@ -129,11 +126,18 @@ public class Play extends BasicGameState implements InputListener {
         
         objects.initMap(world,mapId);
         player = objects.getPlayer();
+               
+        engine = new Engine(world, objects);
+        
         disp_init();
     }
     
     @Override
     public void enter(GameContainer container, StateBasedGame game) throws SlickException {
+        container.getInput().clearKeyPressedRecord();
+        container.getInput().clearMousePressedRecord();
+        container.getInput().clearControlPressedRecord();
+        container.getInput().disableKeyRepeat();
     }
     
     @Override
@@ -195,7 +199,7 @@ public class Play extends BasicGameState implements InputListener {
                     if (objects!=null) {
                         for (Obj ob : objects) {
                             mapWindow.drawTile(tiles, half+xx, half+yy, ob.getIcon());
-                            DispXYString xys = new DispXYString( half+xx, half+yy,""+ob.getSpeed());
+                            DispXYString xys = new DispXYString( half+xx, half+yy,ob.getMessage());
                             xyStrings.add(xys);
                         }
                     }
@@ -250,7 +254,7 @@ public class Play extends BasicGameState implements InputListener {
                 if (nextTile.canEnter || cheat) {
                     player_x = new_x;
                     player_y = new_y;
-                    player.moveToMap(new_x, new_y, 0, mapId, world);
+                    engine.moveObjToMap(player,new_x, new_y, 0, mapId);
                 }
                 frame = delta;
         } else if (pressed) {
@@ -310,7 +314,7 @@ public class Play extends BasicGameState implements InputListener {
     
     private void updateAllObjects(int delta) {
         for(Obj ob : objects.getActiveObjects()) {
-            ob.update(world,objects,delta);
+            ob.update(engine,delta);
         }
     }
 }

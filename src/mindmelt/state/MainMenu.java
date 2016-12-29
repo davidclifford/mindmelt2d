@@ -20,7 +20,6 @@ public class MainMenu extends BasicGameState {
     private Image start;
     private Random rand;
     private TrueTypeFont ttf;
-    private Sound scream;
     private Music theme;
 
     @Override
