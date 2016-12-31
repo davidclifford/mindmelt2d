@@ -16,8 +16,7 @@ public class ObjMonster extends Obj {
             dy += rand.nextInt(2)*2-1;
         }
         if(isReady(delta)) {
-            Obj topObj = engine.getWorld().getTopObject(dx,dy,0);
-            if(engine.getWorld().getTile(dx, dy, z).canEnter() && (topObj==null || !engine.getWorld().getTopObject(dx,dy,z).isBlocked())) {
+            if(engine.canEnter(this,dx,dy,z)) {
                 engine.moveObjToMap(this, dx, dy, z, mapId);
             }
         }

@@ -25,5 +25,9 @@ public class Engine {
     public void moveObjToMap(Obj object, int x, int y, int z, int mapId) {
         object.moveToMap(x, y, z, mapId, world);
     }
+    
+    public boolean canEnter(Obj ob, int x, int y, int z) {
+        return world.canEnter(ob, x,y,z);
+    }
 
 }

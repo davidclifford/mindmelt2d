@@ -32,6 +32,7 @@ public class Play extends BasicGameState implements InputListener {
     private Image tiles;
     private Random rand;
     private TrueTypeFont ttf;
+    private TrueTypeFont guiFont;
     private Sound scream;
     
     private World world;
@@ -44,7 +45,7 @@ public class Play extends BasicGameState implements InputListener {
     private int mapId = 1;
     private Obj player;
     
-    private int frame = 0;
+    private int mouseIcon = 182;
     private String keypress = "";
     private boolean up;
     private boolean down;
@@ -114,13 +115,18 @@ public class Play extends BasicGameState implements InputListener {
         rand = new Random();
         Font font = new Font("Monospaced",Font.BOLD,24);
         ttf = new TrueTypeFont(font,false);
+        Font font2 = new Font("Monospaced",Font.BOLD,12);
+        guiFont = new TrueTypeFont(font2,false);
         scream = new Sound("res/wilhelm.ogg");
-    
+           
         world = new World();
-        world.loadMap("worldx80");
+        world.loadMap("world");
 
         mapWindow = new Window(tiles, ttf, 0, 0, 9, 9);
         
+        Image mouse = mapWindow.getTile(tiles, mouseIcon);
+        container.setMouseCursor(mouse, 0, 0);
+
         objects = new ObjectStore();
         objects.loadObjects("initial");
         
@@ -146,9 +152,10 @@ public class Play extends BasicGameState implements InputListener {
         g.setBackground(Color.black);    
         display_position(player_x,player_y, dir);
         
-        ttf.drawString(300, 0, "Mindmelt!",Color.cyan);
-        ttf.drawString(300, 16, keypress, Color.yellow);
-        ttf.drawString(300, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
+        guiFont.drawString(480, 0, "Mindmelt!",Color.cyan);
+        guiFont.drawString(480, 16, keypress, Color.yellow);
+        guiFont.drawString(480, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
+        guiFont.drawString(480, 48, (xray ? "X" : "x") + (dark ? "D" : "d") + (see_all ? "A" : "a") + (cheat ? "C" : "c") );
     }
     
     private void display_pos(int px, int py) {
@@ -229,7 +236,20 @@ public class Play extends BasicGameState implements InputListener {
         }        
         if(container.getInput().isKeyPressed(Input.KEY_SPACE)) {
             scream.play();
+        }        
+        if(container.getInput().isKeyPressed(Input.KEY_F1)) {
+            xray = !xray;
         }
+        if(container.getInput().isKeyPressed(Input.KEY_F2)) {
+            dark = !dark;
+        }        
+        if(container.getInput().isKeyPressed(Input.KEY_F3)) {
+            see_all = !see_all;
+        }            
+        if(container.getInput().isKeyPressed(Input.KEY_F4)) {
+            cheat = !cheat;
+        }        
+
         if (pressed && player.isReady(delta)) {
                 if (up) {
                     new_x = player_x - b[dir];
@@ -248,8 +268,8 @@ public class Play extends BasicGameState implements InputListener {
                     new_y = player_y - b[dir];
                 }
 
-                TileType nextTile = world.getTile(new_x, new_y, 0);
-                if (nextTile.canEnter || cheat) {
+                boolean canEnter = engine.canEnter(player, new_x, new_y, 0);
+                if (canEnter || cheat) {
                     player_x = new_x;
                     player_y = new_y;
                     engine.moveObjToMap(player,new_x, new_y, 0, mapId);
@@ -262,7 +282,7 @@ public class Play extends BasicGameState implements InputListener {
     
     @Override
     public void keyPressed(int key, char c) {
-        keypress = "DOWN Key: "+key+" Char: "+c;
+        keypress = "DN Key: "+key+" Char: "+c;
         if(key == Input.KEY_UP) up = true;
         if(key == Input.KEY_DOWN) down = true;
         if(key == Input.KEY_LEFT) left = true;
@@ -271,7 +291,6 @@ public class Play extends BasicGameState implements InputListener {
         if(key == Input.KEY_NEXT) dir++;
         dir = dir<0 ? dir+=4 : dir>3 ? dir-=4 : dir;
         pressed = true;
-        frame = 100;
     }
     
     @Override

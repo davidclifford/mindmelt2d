@@ -55,6 +55,12 @@ public class GuiElement {
         tiles.drawEmbedded(xt*SC+x,yt*SC+y, xt*SC+SC+x,yt*SC+SC+y, tx*SC,ty*SC, tx*SC+SC,ty*SC+SC);       
     }       
     
+    public Image getTile(Image tiles, int tile) {
+        int ty = tile/20;
+        int tx = tile%20;
+        return tiles.getSubImage(tx*SC,ty*SC, SC, SC);
+    }
+    
     public void drawString(int xt, int yt, String string) {
         ttf.drawString(xt*SC+x+1,yt*SC+y+1, string, Color.black);
         ttf.drawString(xt*SC+x-1,yt*SC+y-1, string, Color.black);
