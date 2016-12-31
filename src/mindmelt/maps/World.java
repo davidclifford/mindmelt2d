@@ -15,6 +15,13 @@ public class World implements ITileAccess {
     private TileType map[][][] = new TileType[LAYERS][MAP_SIZE][MAP_SIZE];
     private List<Obj> top[][][] = new ArrayList[LAYERS][MAP_SIZE][MAP_SIZE];
     private List<Area> nomonsters = new ArrayList<>();
+    private List<EntryExit> entries = new ArrayList<>();
+    
+    private int id = 0;
+    private int version = 0;
+    private String name = "";
+    private String description = "";
+    private String filename = "";
     
     class Coord {
         int x;
@@ -87,6 +94,7 @@ public class World implements ITileAccess {
     }
     
     public void loadMap(String mapName) {
+        filename = mapName;
         loadControl(mapName);
         loadWorld(mapName);
     }
@@ -125,7 +133,7 @@ public class World implements ITileAccess {
                     case "entry":
                         readEntry(input); 
                         break;
-                    case "control":
+                    case "code":
                         readControl(input);
                         break;
                     case "talk":
@@ -150,6 +158,11 @@ public class World implements ITileAccess {
             vals.add(new Integer(val));
         }
         return vals;
+    }    
+    
+    private String[] strings(String value) {
+        String values[] = value.split(",");
+        return values;
     }
     
     private void readHeader(BufferedReader input) {
@@ -164,14 +177,66 @@ public class World implements ITileAccess {
                 case "nomonster" :
                     List<Integer> area = numbers(kv[1]);
                     nomonsters.add(new Area(area));
-            }
+                    break;
+                case "id" :
+                    id = Integer.parseInt(kv[1]);
+                    break;
+                case "version" :
+                    version = Integer.parseInt(kv[1]);
+                    break;                   
+                case "name" :
+                    name = kv[1];
+                    break;                    
+                case "description" :
+                    description = kv[1];
+                    break;            }
         }
     }
     
     private void readEntry(BufferedReader input) {
         String line="";
         while( (line=readLine(input))!= null) {
-            if(line.startsWith("--"))
+            int fx = 0;
+            int fy = 0;
+            int fz = 0;
+            int tx = 0;
+            int ty = 0;
+            int tz = 0;
+            String toMap = "";
+            String desc = "";
+            String coords[];
+            while( !line.startsWith("-")) {
+                String kv[] = keyValue(line);
+                switch(kv[0]) {
+                    case "filename" :
+                        toMap = kv[1];
+                        break;                    
+                    case "desc" :
+                        desc = kv[1];
+                        break;
+                    case "from" :
+                        String from = kv[1];
+                        coords = strings(kv[1]);
+                        fx = Integer.parseInt(coords[0]);
+                        fy = Integer.parseInt(coords[1]);
+                        fz = Integer.parseInt(coords[2]);
+                        break;
+                    case "to" :
+                        String to = kv[1];
+                        coords = strings(kv[1]);
+                        tx = Integer.parseInt(coords[0]);
+                        ty = Integer.parseInt(coords[1]);
+                        tz = Integer.parseInt(coords[2]);                        
+                        break;                        
+                    default:
+                        System.out.println("Unknown keyword "+kv[0]);
+                }
+                line=readLine(input);
+                if(line==null) break;
+            }
+            EntryExit entry = new EntryExit(fx, fy, fz, tx, ty, tz, toMap, desc);
+            entries.add(entry);
+            if(line==null || line.startsWith("--"))
                 return;
         }
     }
@@ -238,4 +303,41 @@ public class World implements ITileAccess {
         }
         return false;
     }
+    
+    public boolean isEntryExit(int x, int y, int z) {
+        for (EntryExit ent : entries) {
+            if (ent.isEntry(x,y,z))
+                return true;
+        }
+        return false;
+    }    
+    
+    public EntryExit getEntryExit(int x, int y, int z) {
+        for (EntryExit ent : entries) {
+            if (ent.isEntry(x,y,z))
+                return ent;
+        }
+        return null;
+    }
+    
+    public int getId() { 
+        return id; 
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
 }

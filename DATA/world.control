@@ -4,13 +4,13 @@ name=World
 description=World of Mindmelt
 id=1
 nomonster=36,35,0,42,41,0
--
+--
 @entry
 // entry to Omgras castle
 filename=omgra0
 desc=Entering Omgra's Castle
 from=36,51,0
-to=2,40,0,N
+to=11,37,0
 -
 //Short cut to omgra
 filename=world
@@ -83,8 +83,8 @@ filename=under
 desc=Entering the Underground Cave
 from=18,32,0
 to=37,20,0,W
--
-@control
+--
+@code
 // Stone circle
 Activate 40,36,1
 Message Mage
@@ -166,7 +166,7 @@ ObjectIn 105,69
 GotObject 110
 GetObject 105
 MoveObjectInto 110,68
--
+--
 @talk
 id=67
 talkfirst=1

@@ -55,8 +55,9 @@ public class Obj {
         return this;
     }
     
-    public void moveToMap(int x, int y, int z, int mapId, World world) {
+    public void moveToMap(int x, int y, int z, World world) {
         Obj ob = this;
+        int mapId = world.getId();
         if (isInMap()) 
             unlink(world);
         else if (isInObject()) 

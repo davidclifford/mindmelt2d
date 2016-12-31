@@ -17,7 +17,7 @@ public class ObjMonster extends Obj {
         }
         if(isReady(delta)) {
             if(engine.canEnter(this,dx,dy,z)) {
-                engine.moveObjToMap(this, dx, dy, z, mapId);
+                engine.moveObjToMap(this, dx, dy, z);
             }
         }
     }

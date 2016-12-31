@@ -39,7 +39,8 @@ public class ObjectStore {
         }
     }
     
-    public void initMap(World world, int mapId) {
+    public void initMap(World world) {
+        int mapId = world.getId();
         current = new ArrayList<Obj>();
         for (int i=1; i<NUM_OBJECTS; i++) {
             if (objects[i]==null) 

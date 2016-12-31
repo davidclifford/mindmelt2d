@@ -9,6 +9,7 @@ import mindmelt.Mindmelt;
 import mindmelt.engine.Engine;
 import mindmelt.gui.Window;
 import mindmelt.gui.WindowSystem;
+import mindmelt.maps.EntryExit;
 import mindmelt.maps.TileType;
 import mindmelt.maps.World;
 import mindmelt.objects.Obj;
@@ -41,6 +42,7 @@ public class Play extends BasicGameState implements InputListener {
     
     private int player_x = 39;
     private int player_y = 38;
+    private int player_z = 0;
     private int dir = 0;
     private int mapId = 1;
     private Obj player;
@@ -130,7 +132,7 @@ public class Play extends BasicGameState implements InputListener {
         objects = new ObjectStore();
         objects.loadObjects("initial");
         
-        objects.initMap(world,mapId);
+        objects.initMap(world);
         player = objects.getPlayer();
         player.setSpeed(150);
                
@@ -156,6 +158,7 @@ public class Play extends BasicGameState implements InputListener {
         guiFont.drawString(480, 16, keypress, Color.yellow);
         guiFont.drawString(480, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
         guiFont.drawString(480, 48, (xray ? "X" : "x") + (dark ? "D" : "d") + (see_all ? "A" : "a") + (cheat ? "C" : "c") );
+        guiFont.drawString(480, 64, world.getDescription(), Color.red );
     }
     
     private void display_pos(int px, int py) {
@@ -226,6 +229,10 @@ public class Play extends BasicGameState implements InputListener {
     
     @Override
     public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
+        player_x = player.getX();
+        player_y = player.getY();
+        player_z = player.getZ();
+
         int new_x=player_x;
         int new_y=player_y;
         int a[] = {1,0,-1,0};        
@@ -248,7 +255,21 @@ public class Play extends BasicGameState implements InputListener {
         }            
         if(container.getInput().isKeyPressed(Input.KEY_F4)) {
             cheat = !cheat;
-        }        
+        }   
+        if(container.getInput().isKeyPressed(Input.KEY_E)) {
+            if (engine.isAnEntryExit(player_x, player_y, player_z)){
+                EntryExit entry = engine.getEntryExit(player_x, player_y, player_z);
+                if (entry!=null) {
+                    if(!entry.getToMap().equals(world.getFilename())) {
+                        world = new World();
+                        world.loadMap(entry.getToMap());
+                        engine.setWorld(world);
+                        objects.initMap(world);
+                    }
+                    player.moveToMap(entry.getToX(),entry.getToY(),entry.getToZ(), world);
+                }
+            }
+        }   
 
         if (pressed && player.isReady(delta)) {
                 if (up) {
@@ -272,7 +293,7 @@ public class Play extends BasicGameState implements InputListener {
                 if (canEnter || cheat) {
                     player_x = new_x;
                     player_y = new_y;
-                    engine.moveObjToMap(player,new_x, new_y, 0, mapId);
+                    engine.moveObjToMap(player,new_x, new_y, player_z);
                 }
         }
         if (!pressed)
@@ -290,7 +311,7 @@ public class Play extends BasicGameState implements InputListener {
         if(key == Input.KEY_PRIOR) dir--;
         if(key == Input.KEY_NEXT) dir++;
         dir = dir<0 ? dir+=4 : dir>3 ? dir-=4 : dir;
-        pressed = true;
+        pressed = (up||down||left||right);
     }
     
     @Override
