@@ -40,8 +40,8 @@ public class Play extends BasicGameState implements InputListener {
     private ObjectStore objects;
     private Engine engine;
     
-    private int player_x = 39;
-    private int player_y = 38;
+    private int player_x = 0;
+    private int player_y = 0;
     private int player_z = 0;
     private int dir = 0;
     private int mapId = 1;
@@ -57,13 +57,13 @@ public class Play extends BasicGameState implements InputListener {
     
     private Window mapWindow;
     
-    int size = 15;
+    int size = 9;
     int half = size/2;
     int tile[][];
     List<DispXY> dispList;
     boolean xray = false;
-    boolean dark = false;
-    boolean see_all = false;
+    boolean light = false;
+    boolean see_all = true;
     boolean cheat = true;
     
     class DispXY {
@@ -135,6 +135,9 @@ public class Play extends BasicGameState implements InputListener {
         objects.initMap(world);
         player = objects.getPlayer();
         player.setSpeed(150);
+        player_x = player.getX();
+        player_y = player.getY();
+        player_z = player.getZ();
                
         engine = new Engine(world, objects);
         
@@ -157,7 +160,7 @@ public class Play extends BasicGameState implements InputListener {
         guiFont.drawString(480, 0, "Mindmelt!",Color.cyan);
         guiFont.drawString(480, 16, keypress, Color.yellow);
         guiFont.drawString(480, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
-        guiFont.drawString(480, 48, (xray ? "X" : "x") + (dark ? "D" : "d") + (see_all ? "A" : "a") + (cheat ? "C" : "c") );
+        guiFont.drawString(480, 48, (xray ? "X" : "x") + (light ? "L" : "l") + (see_all ? "A" : "a") + (cheat ? "C" : "c") );
         guiFont.drawString(480, 64, world.getDescription(), Color.red );
     }
     
@@ -180,6 +183,7 @@ public class Play extends BasicGameState implements InputListener {
         int mask[][] = new int[size][size]; //0 = see & thru, 1 = see & not thru, 2 = not see & not thru
         List<Obj> obj[][] = new ArrayList[size][size];
         Obj top[][] = new Obj[size][size];
+        boolean dark = !world.getLight() && !light;
         
         for (DispXY xy : dispList) {
             boolean canSee = world.getTile(px+xy.xf, py+xy.yf, 0).isSeeThru();
@@ -248,7 +252,7 @@ public class Play extends BasicGameState implements InputListener {
             xray = !xray;
         }
         if(container.getInput().isKeyPressed(Input.KEY_F2)) {
-            dark = !dark;
+            light = !light;
         }        
         if(container.getInput().isKeyPressed(Input.KEY_F3)) {
             see_all = !see_all;

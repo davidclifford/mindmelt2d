@@ -3,6 +3,7 @@ package mindmelt.maps;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,13 +13,14 @@ public class World implements ITileAccess {
 
     public static final int MAP_SIZE = 80;
     public static final int LAYERS = 8;
-    private TileType map[][][] = new TileType[LAYERS][MAP_SIZE][MAP_SIZE];
-    private List<Obj> top[][][] = new ArrayList[LAYERS][MAP_SIZE][MAP_SIZE];
+    private TileType map[][][] = new TileType[LAYERS][MAP_SIZE+1][MAP_SIZE+1];
+    private List<Obj> top[][][] = new ArrayList[LAYERS][MAP_SIZE+1][MAP_SIZE+1];
     private List<Area> nomonsters = new ArrayList<>();
     private List<EntryExit> entries = new ArrayList<>();
     
     private int id = 0;
     private int version = 0;
+    private boolean light;
     private String name = "";
     private String description = "";
     private String filename = "";
@@ -54,6 +56,7 @@ public class World implements ITileAccess {
     public TileType getTile(int x, int y, int level) {
         if (x<0 || y<0) return TileType.space;
         if (x>=MAP_SIZE || y>=MAP_SIZE) return TileType.space;
+        if (map[level][y][x]==null) return TileType.space;
         return map[level][y][x];
     }     
     
@@ -189,7 +192,12 @@ public class World implements ITileAccess {
                     break;                    
                 case "description" :
                     description = kv[1];
-                    break;            }
+                    break;
+                case "light" :
+                    light = kv[1].equals("true");
+                    break;
+                default:
+                    System.out.println("Unknown control header keyword "+kv[0]);            }
         }
     }
     
@@ -229,7 +237,7 @@ public class World implements ITileAccess {
                         tz = Integer.parseInt(coords[2]);                        
                         break;                        
                     default:
-                        System.out.println("Unknown keyword "+kv[0]);
+                        System.out.println("Unknown entry keyword "+kv[0]);
                 }
                 line=readLine(input);
                 if(line==null) break;
@@ -264,27 +272,52 @@ public class World implements ITileAccess {
             BufferedReader input = new BufferedReader(new FileReader(filename));
             //Header
             int level = 0;
-
-            String line;
-            int y=0;
-            while ((line = input.readLine())!=null) {
-                int x=0;
-                for(int c=0; c<line.length();c++) {
-                    char ch = line.charAt(c);
-                    TileType tile = TileType.getFromChar(ch);
-                    map[level][y][x] = tile;
-                    x++;
+            List<Integer> coords;
+            String line = "";
+            int topleftX=1;
+            int topleftY=1;
+            
+            while(line != null) {
+                while ((line = input.readLine())!=null && !line.equals("--")) {
+                    String kv[] = keyValue(line);
+                    switch(kv[0]) {
+                        case "topleft" :
+                            coords = numbers(kv[1]);
+                            topleftX = coords.get(0);
+                            topleftY = coords.get(1);
+                            break;
+                        case "level" :
+                            level = Integer.parseInt(kv[1]);
+                            break;
+                        default:
+                            System.out.println("Unknown map keyword "+kv[0]);                } 
                 }
-                y++;
+
+                int y = topleftY;
+                while ((line = input.readLine())!=null && !line.equals("--")) {
+                    int x = topleftX;
+                    for(int c=0; c<line.length();c++) {
+                        char ch = line.charAt(c);
+                        TileType tile = TileType.getFromChar(ch);
+                        map[level][y][x] = tile;
+                        x++;
+                    }
+                    y++;
+                }
             }
         } catch (Exception e)   {
             System.out.println(e.toString());
         }
     }
     
+    private void readMapHeader(BufferedReader input) throws IOException {
+            String line;
+
+    }
+    
     public boolean canEnter(Obj ob, int x, int y, int z) {
         if (getTile(x,y,z).canEnter()) {
-            if(getTopObject(x,y,z)== null || !getTopObject(x,y,z).isBlocked()) {
+            if(getTopObject(x,y,z)== null || ob.isPlayer() || !getTopObject(x,y,z).isBlocked()) {
                 if(ob.isMonster() && inNoMonsterArea(x,y,z)) {
                     return false;
                 } else {
@@ -338,6 +371,10 @@ public class World implements ITileAccess {
 
     public String getFilename() {
         return filename;
+    }
+
+    public boolean getLight() {
+        return light;
     }
 
 }

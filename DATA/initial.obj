@@ -1,5 +1,5 @@
 id,name,desc,type,x,y,z,map,inside,icon
-1,player,Argmo,player,39,38,0,1,0,61
+1,player,Argmo,player,40,39,0,1,0,61
 2,gremlin,Gremlin,monster,43,38,0,1,0,62
 3,warg,Warg,monster,30,36,0,1,0,63
 4,wurm,Wurm,monster,30,36,0,1,0,64

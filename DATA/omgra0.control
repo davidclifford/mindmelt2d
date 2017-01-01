@@ -3,12 +3,13 @@ version=1
 id=13
 name=omgra0
 description=Omgra's Castle
+light=false
 --
 @entry
 filename=world
 desc=The World
-from=11,37,0
-to=36,51,0
+from=12,38,0
+to=37,52,0
 -
 filename=omgra1
 desc=Level 1
