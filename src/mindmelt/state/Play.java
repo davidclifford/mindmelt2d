@@ -54,6 +54,7 @@ public class Play extends BasicGameState implements InputListener {
     private boolean left;
     private boolean right;
     private boolean pressed = false;
+    private String mouseString = "";
     
     private Window mapWindow;
     
@@ -124,10 +125,10 @@ public class Play extends BasicGameState implements InputListener {
         world = new World();
         world.loadMap("world");
 
-        mapWindow = new Window(tiles, ttf, 0, 0, 9, 9);
+        mapWindow = new Window(tiles, ttf, 1, 1, 10, 10);
         
         Image mouse = mapWindow.getTile(tiles, mouseIcon);
-        container.setMouseCursor(mouse, 0, 0);
+        container.setMouseCursor(mouse,16, 16);
 
         objects = new ObjectStore();
         objects.loadObjects("initial");
@@ -162,6 +163,7 @@ public class Play extends BasicGameState implements InputListener {
         guiFont.drawString(480, 32, "X: "+player_x+" Y:"+player_y+" Tile: "+world.getTile(player_x+4, player_y+4, 0).getId(), Color.white);
         guiFont.drawString(480, 48, (xray ? "X" : "x") + (light ? "L" : "l") + (see_all ? "A" : "a") + (cheat ? "C" : "c") );
         guiFont.drawString(480, 64, world.getDescription(), Color.red );
+        guiFont.drawString(480, 80, mouseString, Color.yellow );
     }
     
     private void display_pos(int px, int py) {
@@ -330,7 +332,7 @@ public class Play extends BasicGameState implements InputListener {
     
     @Override
     public void mouseClicked(int button, int x, int y, int count) {
-        System.out.println("Button: "+button+" x: "+x+" y: "+y+" count: "+count);
+        mouseString = "Button: "+button+" x: "+x/32+" y: "+y/32+" count: "+count;
     }
     
     private void drawTile(int x, int y, int tile) {
