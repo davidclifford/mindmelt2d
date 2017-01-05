@@ -376,5 +376,16 @@ public class World implements ITileAccess {
     public boolean getLight() {
         return light;
     }
-
+    
+    public void setTile(int x, int y, int z, TileType tile)
+    {
+        map[z][y][x] = tile;
+    }
+    
+    public void changeTile(int x, int y, int z, TileType tile) {
+        if (x<0 || x>MAP_SIZE || y<0 || y>MAP_SIZE || z<0 || z>=LAYERS || tile == null) {
+            return;
+        }
+        setTile(x,y,z,tile);
+    }
 }

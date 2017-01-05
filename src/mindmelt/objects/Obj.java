@@ -13,6 +13,7 @@ public class Obj {
     public int y = 0;
     public int z = 0;
     public int mapId = 0;
+    public int dir = 0;
     public int speed = 10;
     public int wait = 0;
     public String message = "";
@@ -234,6 +235,16 @@ public class Obj {
     public void setType(String type) {
         this.type = type;
     }
+
+    public int getDirection() {
+        return dir;
+    }
+
+    public void setDirection(int dir) {
+        this.dir = dir;
+    }
+    
+    
  
     public boolean isMonster() {
         return type.equals("monster");

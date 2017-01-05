@@ -1,22 +1,32 @@
 package mindmelt.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+import mindmelt.action.Action;
+
 public class WindowSystem extends GuiElement {
 
-    private Window window;
+    private List<Window> windows = new ArrayList<>();
     
-    public WindowSystem(Window window, int x, int y, int w, int h) {
-        super(x, y, w, h);
-        this.window = window;
+    public WindowSystem() {
     }
 
-    public Window getWindow() {
-        return window;
-    }
-
-    public void setWindow(Window window) {
-        this.window = window;
-    }
-   
     public void draw() {
+    }
+    
+    public void addWindow(Window window) {
+        windows.add(window);
+        window.setParent(this);
+    }    
+    
+    public void deleteWindow(Window window) {
+        windows.remove(window);
+        window.setParent(null);
+    }
+    
+    public void click(int x, int y, int button) {
+        for(Window window : windows) {
+            window.click(x,y,button);
+        }        
     }
 }

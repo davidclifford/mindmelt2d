@@ -2,15 +2,16 @@ package mindmelt.state;
 
 import java.awt.Font;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import mindmelt.Mindmelt;
+import mindmelt.action.Action;
+import mindmelt.action.ZoneAdjacentAction;
 import mindmelt.engine.Engine;
 import mindmelt.gui.Window;
 import mindmelt.gui.WindowSystem;
+import mindmelt.gui.Zone;
 import mindmelt.maps.EntryExit;
-import mindmelt.maps.TileType;
 import mindmelt.maps.World;
 import mindmelt.objects.Obj;
 import mindmelt.objects.ObjectStore;
@@ -56,6 +57,7 @@ public class Play extends BasicGameState implements InputListener {
     private boolean pressed = false;
     private String mouseString = "";
     
+    private WindowSystem windowSystem;
     private Window mapWindow;
     
     int size = 9;
@@ -125,7 +127,9 @@ public class Play extends BasicGameState implements InputListener {
         world = new World();
         world.loadMap("world");
 
+        windowSystem = new WindowSystem();
         mapWindow = new Window(tiles, ttf, 1, 1, 10, 10);
+        windowSystem.addWindow(mapWindow);
         
         Image mouse = mapWindow.getTile(tiles, mouseIcon);
         container.setMouseCursor(mouse,16, 16);
@@ -141,6 +145,10 @@ public class Play extends BasicGameState implements InputListener {
         player_z = player.getZ();
                
         engine = new Engine(world, objects);
+        
+        Zone zoneAroundPlayer = new Zone(half,half,3,3);
+        zoneAroundPlayer.setAction(new ZoneAdjacentAction(engine));
+        mapWindow.addZone(zoneAroundPlayer);
         
         disp_init();
     }
@@ -300,10 +308,13 @@ public class Play extends BasicGameState implements InputListener {
                     player_x = new_x;
                     player_y = new_y;
                     engine.moveObjToMap(player,new_x, new_y, player_z);
+                } else {
+                    engine.activateTile(new_x, new_y, player_z);
                 }
         }
         if (!pressed)
             player.setWait(player.getSpeed());
+        player.setDirection(dir);
         updateAllObjects(delta);
     }   
     
@@ -332,7 +343,9 @@ public class Play extends BasicGameState implements InputListener {
     
     @Override
     public void mouseClicked(int button, int x, int y, int count) {
-        mouseString = "Button: "+button+" x: "+x/32+" y: "+y/32+" count: "+count;
+        
+        mouseString = "B: "+button+" x: "+x/32+" y: "+y/32+" c: "+count;
+        windowSystem.click(x, y, button);
     }
     
     private void drawTile(int x, int y, int tile) {

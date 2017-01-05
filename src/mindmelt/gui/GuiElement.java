@@ -1,5 +1,6 @@
 package mindmelt.gui;
 
+import mindmelt.action.Action;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.TrueTypeFont;
@@ -13,23 +14,27 @@ public class GuiElement {
     protected int h;
     protected Image tiles;
     protected TrueTypeFont ttf;
+    protected Action action;
             
     protected GuiElement parent = null;
 
     public GuiElement(Image tiles, TrueTypeFont ttf, int x, int y, int w, int h) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
+        this.x = x*SC;
+        this.y = y*SC;
+        this.w = w*SC;
+        this.h = h*SC;
         this.tiles = tiles;
         this.ttf = ttf;
     }
 
     public GuiElement(int x, int y, int w, int h) {
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
+        this.x = x*SC;
+        this.y = y*SC;
+        this.w = w*SC;
+        this.h = h*SC;
+    }
+    
+    public GuiElement() {      
     }
 
     public GuiElement getParent() {
@@ -39,13 +44,19 @@ public class GuiElement {
     public void setParent(GuiElement parent) {
         this.parent = parent;
     }
-    
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+       
     public boolean isInside(int x, int y) {
         return (x >= this.x && x <= this.x + w && y >= this.y && y<= this.y+h);
     }
     
-    public void click(int x, int y) {
-        System.out.println(this.toString());
+    public void click(int x, int y, int button) {
+        System.out.println("Click: x="+x+" y="+y+" button="+button);
+        System.out.println(this.getClass().getCanonicalName()+": x="+this.x+" y="+this.y+" w="+this.w+" h="+this.h);
+        System.out.println(parent.getClass().getCanonicalName()+": x="+parent.x+" y="+parent.y+" w="+parent.w+" h="+parent.h);
     }
 
     //in tile coords (x=0-20, y=0-16) relative to window origin

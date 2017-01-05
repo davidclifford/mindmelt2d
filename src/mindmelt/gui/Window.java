@@ -2,6 +2,7 @@ package mindmelt.gui;
 
 import java.util.ArrayList;
 import java.util.List;
+import mindmelt.action.Action;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.TrueTypeFont;
 
@@ -15,7 +16,7 @@ public class Window extends GuiElement {
     private List<Button> buttons = new ArrayList<>();
 
     public Window(Image tiles, TrueTypeFont ttf, int x, int y, int w, int h) {
-        super(tiles,ttf,x*SC,y*SC,w*SC,h*SC);
+        super(tiles,ttf,x,y,w,h);
     }
     
     public Window addZone(Zone zone) {
@@ -30,32 +31,29 @@ public class Window extends GuiElement {
         return this;
     }
     
-    public void click(int x, int y)
+    public void click(int x, int y, int button)
     {
-        GuiElement elem = getElement(x, y);
-        if (elem==null) {
-            return;
-        }
         int xx = x-this.x;
-        int yy = y-this.y;
-        elem.click(xx, yy);
+        int yy = y-this.y;        
+        GuiElement elem = getElement(xx, yy);
+        if (elem!=null) {
+            elem.click(xx, yy, button);
+        }
     }
    
     public GuiElement getElement(int x, int y)
     {
-        int xx = x-this.x;
-        int yy = y-this.y;
         for(Button but:buttons) {
-            if (but.isInside(xx,yy)) {
+            if (but.isInside(x,y)) {
                 return but;
             }
         }
         for(Zone zon:zones) {
-            if (zon.isInside(xx,yy)) {
+            if (zon.isInside(x,y)) {
                 return zon;
             }
         }
-        return this;
+        return null;
     }
 
     public int getXPosition() {
