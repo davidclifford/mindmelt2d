@@ -46,9 +46,10 @@ public class ObjectStore {
             if (objects[i]==null) 
                 continue;
             Obj ob = objects[i];
-            if (ob.mapId == mapId) {
+            if (ob.getMapId() == mapId) {
                 current.add(ob);
-                ob.moveToMap(world);
+                if (ob.isInMap())
+                    ob.moveToMap(world);
             }
         }
     }
@@ -59,5 +60,12 @@ public class ObjectStore {
     
     public List<Obj> getActiveObjects() {
         return current;
+    }
+    
+    public void addToActiveObjects(Obj ob) {
+        if (!ob.isInMap()) 
+            return;
+        if(!current.contains(ob))
+            current.add(ob);
     }
 }

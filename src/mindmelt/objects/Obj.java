@@ -40,15 +40,25 @@ public class Obj {
         return (inside!=null && type.equals("player"));
     }
     
+    public boolean hasObjectInside() {
+        return (objects!=null && objects.size()>0) ;
+    }
+    
+    public boolean isAt(int x, int y, int z) {
+        return (this.x == x && this.y == y && this.z == z);
+    }
     public void moveToObject(Obj obTo, World world) {
         if (isInMap()) unlink(world);
         if (isInObject()) unlink();
-        List<Obj> objects = obTo.objects;
+        inside = obTo;
+        obTo.addObject(this);
+    }
+    
+    private void addObject(Obj ob) {
         if (objects==null) {
             objects = new ArrayList<Obj>();
-        }
-        objects.add(this);
-        inside = obTo;
+        }        
+        objects.add(ob);
     }
     
     public Obj moveToMap(World world) {
@@ -56,16 +66,19 @@ public class Obj {
         return this;
     }
     
-    public void moveToMap(int x, int y, int z, World world) {
+    public void moveToMap(int x, int y, int z, World world, ObjectStore objects) {
         Obj ob = this;
         int mapId = world.getId();
-        if (isInMap()) 
+        if (isInMap()) { 
             unlink(world);
-        else if (isInObject()) 
+        }
+        else if (isInObject()) {
             unlink();
+        }
         world.setTop(x, y, z, ob);
         setCoords(x, y, z);
         setMapId(mapId);
+        objects.addToActiveObjects(ob);
     }
 
     private void unlink() {
@@ -244,7 +257,9 @@ public class Obj {
         this.dir = dir;
     }
     
-    
+    public List<Obj> getObjects() {
+        return objects;
+    }
  
     public boolean isMonster() {
         return type.equals("monster");
@@ -278,11 +293,12 @@ public class Obj {
         wait+=delta;
         if (wait>=speed) {
             wait-=speed;
+            setMessage("");
             return true;
         }
         return false;
     }
-    
+       
     public void update(Engine engine, int delta) {
         
     }

@@ -27,7 +27,14 @@ public class ZoneAdjacentAction extends Action {
         
         int x = px+a[d];
         int y = py+b[d];
-        engine.activateTile(x,y,pz);
+        
+        //pickup/drop
+        Obj ob = engine.getTopObject(x, y, pz);
+        if (ob!=null && !ob.isPlayer()) {
+            engine.moveObjToObj(ob, player);
+        } else {
+            engine.activateTile(x,y,pz);
+        }
         return true;
     }
 }

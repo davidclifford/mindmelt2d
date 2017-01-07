@@ -59,6 +59,7 @@ public class Play extends BasicGameState implements InputListener {
     
     private WindowSystem windowSystem;
     private Window mapWindow;
+    private Window invWindow;
     
     int size = 9;
     int half = size/2;
@@ -130,6 +131,8 @@ public class Play extends BasicGameState implements InputListener {
         windowSystem = new WindowSystem();
         mapWindow = new Window(tiles, ttf, 1, 1, 10, 10);
         windowSystem.addWindow(mapWindow);
+        invWindow = new Window(tiles, ttf, 1,12, 10,1);
+        windowSystem.addWindow(invWindow);
         
         Image mouse = mapWindow.getTile(tiles, mouseIcon);
         container.setMouseCursor(mouse,16, 16);
@@ -163,8 +166,10 @@ public class Play extends BasicGameState implements InputListener {
     
     @Override
     public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
+        world = engine.getWorld();
         g.setBackground(Color.black);    
         display_position(player_x,player_y, dir);
+        display_inventory(player);
         
         guiFont.drawString(480, 0, "Mindmelt!",Color.cyan);
         guiFont.drawString(480, 16, keypress, Color.yellow);
@@ -174,21 +179,19 @@ public class Play extends BasicGameState implements InputListener {
         guiFont.drawString(480, 80, mouseString, Color.yellow );
     }
     
-    private void display_pos(int px, int py) {
-        int size = 15;
-        int half = size/2;
-        int tile;        
+    private void display_inventory(Obj who) {
+        List<Obj> objects = who.getObjects();
+        if (objects==null || objects.isEmpty()) return;
         tiles.startUse();
-        for (int y=-half;y<half+1;y++) {
-            for (int x=-half;x<half+1;x++) {
-                tile = world.getTile(px+x, py+y, 0).getIcon();
-                mapWindow.drawTile(tiles, x+half, y+half, tile);
-            }
+        int x = 0;
+        for(Obj ob : objects) {
+            int icon = ob.getIcon();
+            System.out.println("Inv: icon="+icon+" x="+x);
+            invWindow.drawTile(tiles, x++, 1, icon);
         }
-        mapWindow.drawTile(tiles,half,half,61); //player
-        tiles.endUse();    
-    }    
- 
+        tiles.endUse();
+    }
+    
     private void display_position(int px, int py, int dir) {
         int mask[][] = new int[size][size]; //0 = see & thru, 1 = see & not thru, 2 = not see & not thru
         List<Obj> obj[][] = new ArrayList[size][size];
@@ -270,18 +273,16 @@ public class Play extends BasicGameState implements InputListener {
         if(container.getInput().isKeyPressed(Input.KEY_F4)) {
             cheat = !cheat;
         }   
+        if(container.getInput().isKeyPressed(Input.KEY_BACK)) {
+            if(player.hasObjectInside()) {
+                Obj ob = player.getObjects().get(0);
+                engine.moveObjToMap(ob, player.getX(),player.getY(),player.getZ());
+                engine.moveObjToMap(player, player.getX(),player.getY(),player.getZ());
+            }
+        }   
         if(container.getInput().isKeyPressed(Input.KEY_E)) {
             if (engine.isAnEntryExit(player_x, player_y, player_z)){
-                EntryExit entry = engine.getEntryExit(player_x, player_y, player_z);
-                if (entry!=null) {
-                    if(!entry.getToMap().equals(world.getFilename())) {
-                        world = new World();
-                        world.loadMap(entry.getToMap());
-                        engine.setWorld(world);
-                        objects.initMap(world);
-                    }
-                    player.moveToMap(entry.getToX(),entry.getToY(),entry.getToZ(), world);
-                }
+                engine.doEntryExit(player_x, player_y, player_z);
             }
         }   
 

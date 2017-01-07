@@ -338,11 +338,7 @@ public class World implements ITileAccess {
     }
     
     public boolean isEntryExit(int x, int y, int z) {
-        for (EntryExit ent : entries) {
-            if (ent.isEntry(x,y,z))
-                return true;
-        }
-        return false;
+        return !(getEntryExit(x, y, z)==null);
     }    
     
     public EntryExit getEntryExit(int x, int y, int z) {
