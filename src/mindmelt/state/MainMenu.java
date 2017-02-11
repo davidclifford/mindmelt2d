@@ -29,6 +29,7 @@ public class MainMenu extends BasicGameState {
 
     @Override
     public void init(GameContainer gc, StateBasedGame state) throws SlickException {
+        start = new Image("res/start.bmp",false);
         Font font = new Font("Monospaced",Font.BOLD,32);
         ttf = new TrueTypeFont(font,false);
         theme = new Music("res/theme.ogg");
@@ -45,7 +46,6 @@ public class MainMenu extends BasicGameState {
 
     @Override
     public void render(GameContainer gc, StateBasedGame state, Graphics g) throws SlickException {
-        start = new Image("res/start.bmp",false);
         start.draw();
         g.setColor(Color.red);
         ttf.drawString(202,302, "Press Enter To Start",Color.black);
